@@ -1,9 +1,19 @@
-import { Button, Input, Textarea, Spinner } from "@chakra-ui/react";
-import { useState } from "react";
+import {
+  Box,
+  Button,
+  Input,
+  Textarea,
+  Spinner,
+  Icon,
+  VStack,
+  Text,
+} from "@chakra-ui/react";
+import { useState, useRef } from "react";
 import Tesseract from "tesseract.js";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import PdfJsWorker from "pdfjs-dist/build/pdf.worker?worker";
 import toast from "react-hot-toast";
+import { FiUploadCloud, FiFileText, FiImage } from "react-icons/fi";
 
 // @ts-ignore
 GlobalWorkerOptions.workerPort = new PdfJsWorker();
@@ -13,6 +23,11 @@ export const HandWrittenOCRUploader = () => {
   const [ocrText, setOcrText] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const isPDF = file?.type === "application/pdf";
+  const isImage = file?.type?.startsWith("image");
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
@@ -20,14 +35,7 @@ export const HandWrittenOCRUploader = () => {
     if (
       !["image/png", "image/jpeg", "application/pdf"].includes(selected.type)
     ) {
-      toast.error(
-        "Unsupported file type: " +
-          selected.type +
-          ". Please upload a supported file type (PNG, JPEG, or PDF).",
-        {
-          duration: 4000,
-        }
-      );
+      toast.error(`Unsupported file type: ${selected.type}`);
       return;
     }
 
@@ -78,58 +86,114 @@ export const HandWrittenOCRUploader = () => {
       }
     } catch (error) {
       console.error("OCR error:", error);
-      toast.error(
-        "OCR Failed: Something went wrong while processing the file.",
-        {
-          duration: 4000,
-        }
-      );
+      toast.error("OCR Failed: Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-8">
-      <h1 className="text-2xl font-bold mb-6 text-blue-600 text-center">
-        Hand Written OCR File Extractor
-      </h1>
+    <Box
+      maxW="3xl"
+      mx="auto"
+      bg="white"
+      boxShadow="lg"
+      rounded="xl"
+      p={8}
+      className="animate-fade-in"
+    >
+      <Text
+        fontSize="2xl"
+        fontWeight="bold"
+        color="blue.600"
+        textAlign="center"
+        mb={6}
+      >
+        Handwritten OCR Extractor
+      </Text>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">
-          Upload any Hand Written file (PNG, JPG, or PDF)
-        </label>
+      {/* Drag and Drop Upload Box */}
+      <Box
+        border="2px dashed #3182CE"
+        borderRadius="lg"
+        p={6}
+        textAlign="center"
+        cursor="pointer"
+        onClick={() => inputRef.current?.click()}
+        bg="gray.50"
+        _hover={{ bg: "blue.50" }}
+        mb={6}
+      >
+        <VStack>
+          <Icon as={FiUploadCloud} w={10} h={10} color="blue.400" />
+          <Text fontWeight="medium" color="gray.600">
+            Click or drag file to upload
+          </Text>
+          <Text fontSize="sm" color="gray.500">
+            Only PNG, JPEG, or PDF files are supported
+          </Text>
+        </VStack>
         <Input
           type="file"
           accept=".png,.jpg,.jpeg,.pdf"
+          ref={inputRef}
           onChange={handleFileChange}
-          variant="outline"
-          size="md"
+          display="none"
         />
+      </Box>
+
+      {/* File Preview */}
+      {file && (
+        <Box
+          p={4}
+          mb={4}
+          borderRadius="md"
+          border="1px solid #E2E8F0"
+          display="flex"
+          alignItems="center"
+          bg="gray.50"
+          gap={3}
+        >
+          <Icon
+            as={isPDF ? FiFileText : FiImage}
+            color="blue.500"
+            w={6}
+            h={6}
+          />
+          <Text fontSize="sm" color="gray.700">
+            {file.name}
+          </Text>
+        </Box>
+      )}
+
+      <div className="flex justify-center">
+        <Button
+          variant="solid"
+          onClick={runOCR}
+          disabled={!file || loading}
+          mb={4}
+          className="bg-blue-500 hover:bg-blue-600 text-white w-1/2"
+        >
+          {loading ? <Spinner size="sm" mr={2} /> : null}
+          {loading ? "Processing..." : "Run OCR"}
+        </Button>
       </div>
 
-      <Button
-        colorScheme="blue"
-        onClick={runOCR}
-        disabled={!file || loading}
-        w="100%"
-        mb={4}
-      >
-        {loading ? <Spinner size="sm" mr={2} /> : null}
-        {loading ? "Processing..." : "Run OCR"}
-      </Button>
-
-      <div className="mb-2 font-semibold text-sm text-gray-700">
-        Extracted Text
-      </div>
-      <Textarea
-        placeholder="Extracted text will appear here..."
-        value={ocrText}
-        readOnly
-        size="sm"
-        minH="200px"
-        borderColor="gray.300"
-      />
-    </div>
+      <Box>
+        <Text fontWeight="semibold" mb={2} fontSize="sm" color="gray.700">
+          Extracted Text
+        </Text>
+        <Textarea
+          placeholder="Extracted text will appear here..."
+          value={ocrText}
+          readOnly
+          size="sm"
+          minH="200px"
+          bg="gray.50"
+          borderColor="gray.300"
+          _focus={{ borderColor: "blue.400" }}
+        />
+      </Box>
+    </Box>
   );
 };

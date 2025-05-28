@@ -4,11 +4,11 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "../components/ui/Card";
-import { Input } from "../components/ui/Input";
-import { Button } from "../components/ui/Button";
+} from "../../components/ui/Card";
+import { Input } from "../../components/ui/Input";
+import { Button } from "../../components/ui/Button";
 import { Plus, Search, Edit, Trash2 } from "lucide-react";
-import { DeleteDialog } from "../components/ui/DeleteDialog";
+import { DeleteDialog } from "../../components/ui/DeleteDialog";
 import { DocumentType } from "@/types/User";
 import { PaginationControls } from "@/components/ui/PaginationControls";
 

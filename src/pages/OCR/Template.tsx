@@ -1,135 +1,190 @@
-import { Button, Input, Textarea, Spinner } from "@chakra-ui/react";
+import { Select } from "@/components/ui/Select";
+import { Text } from "@chakra-ui/react";
 import { useState } from "react";
-import Tesseract from "tesseract.js";
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
-import PdfJsWorker from "pdfjs-dist/build/pdf.worker?worker";
-import toast from "react-hot-toast";
-
-// @ts-ignore
-GlobalWorkerOptions.workerPort = new PdfJsWorker();
 
 export const TemplateOCR = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [ocrText, setOcrText] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (!selected) return;
-
-    if (
-      !["image/png", "image/jpeg", "application/pdf"].includes(selected.type)
-    ) {
-      toast.error(
-        "Unsupported file type: " +
-          selected.type +
-          ". Please upload a supported file type (PNG, JPEG, or PDF).",
-        {
-          duration: 4000,
-        }
-      );
-      return;
-    }
-
-    setFile(selected);
-    setOcrText("");
-  };
-
-  const runOCR = async () => {
-    if (!file) return;
-    setLoading(true);
-
-    try {
-      if (file.type === "application/pdf") {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await getDocument({ data: new Uint8Array(arrayBuffer) })
-          .promise;
-
-        let finalText = "";
-
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 2 });
-
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-
-          await page.render({ canvasContext: context!, viewport }).promise;
-
-          const blob: Blob = await new Promise((resolve) =>
-            canvas.toBlob((b) => resolve(b!), "image/png")
-          );
-
-          const result = await Tesseract.recognize(blob, "eng+osd", {
-            logger: (m) => console.log(m),
-          });
-
-          finalText += result.data.text + "\n\n";
-        }
-
-        setOcrText(finalText.trim());
-      } else {
-        const result = await Tesseract.recognize(file, "eng+osd", {
-          logger: (m) => console.log(m),
-        });
-        setOcrText(result.data.text);
-      }
-    } catch (error) {
-      console.error("OCR error:", error);
-      toast.error(
-        "OCR Failed: Something went wrong while processing the file.",
-        {
-          duration: 4000,
-        }
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [templateName, setTemplateName] = useState("");
+  const [headerName, setHeaderName] = useState("");
+  const [fieldName, setFieldName] = useState("");
+  const [selectedPDF, setSelectedPDF] = useState<File | null>();
+  const [formData, setFormData] = useState({
+    department: "",
+    subdepartment: "",
+    template: "",
+  });
+  const fields = [
+    { name: "Registry", x: 398, y: 108, width: 180, height: 26 },
+    { name: "Full Name", x: 72, y: 147, width: 504, height: 17 },
+    { name: "Sex", x: 72, y: 177, width: 136, height: 13 },
+    { name: "Header", x: 173, y: 68, width: 286, height: 22 },
+  ];
 
   return (
-    <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-8">
-      <h1 className="text-2xl font-bold mb-6 text-blue-600 text-center">
-        Hand Written OCR File Extractor
-      </h1>
-
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">
-          Upload any Hand Written file (PNG, JPG, or PDF)
-        </label>
-        <Input
-          type="file"
-          accept=".png,.jpg,.jpeg,.pdf"
-          onChange={handleFileChange}
-          variant="outline"
-          size="md"
-        />
-      </div>
-
-      <Button
-        colorScheme="blue"
-        onClick={runOCR}
-        disabled={!file || loading}
-        w="100%"
-        mb={4}
+    <div className="flex flex-col justify-center items-center bg-white rounded-md shadow-lg">
+      {/* // HEADER  */}
+      <Text
+        fontSize="2xl"
+        fontWeight="bold"
+        color="blue.600"
+        textAlign="center"
+        mb={6}
+        mt={4}
       >
-        {loading ? <Spinner size="sm" mr={2} /> : null}
-        {loading ? "Processing..." : "Run OCR"}
-      </Button>
+        Template Documents
+      </Text>
+      <div className="flex gap-4 p-4 w-full">
+        {/* LEFT PANEL */}
+        <div className="w-1/3 space-y-4">
+          <div>
+            <Select
+              label="Department"
+              value={formData.department}
+              onChange={(e) =>
+                setFormData({ ...formData, department: e.target.value })
+              }
+              options={[
+                { value: "finance", label: "Finance" },
+                { value: "payroll", label: "Payroll" },
+                { value: "hr", label: "HR" },
+              ]}
+            />
+          </div>
 
-      <div className="mb-2 font-semibold text-sm text-gray-700">
-        Extracted Text
+          <div>
+            <Select
+              label="Subdepartment"
+              value={formData.subdepartment}
+              onChange={(e) =>
+                setFormData({ ...formData, subdepartment: e.target.value })
+              }
+              options={[
+                { value: "payroll", label: "Payroll" },
+                { value: "documents", label: "Documents" },
+                { value: "records", label: "Records" },
+              ]}
+            />
+          </div>
+
+          <div>
+            <Select
+              label="OCR Template"
+              value={formData.template}
+              onChange={(e) =>
+                setFormData({ ...formData, template: e.target.value })
+              }
+              options={[
+                { value: "id", label: "ID Card" },
+                { value: "birth", label: "Birth Certificate" },
+                { value: "passport", label: "Passport" },
+              ]}
+            />
+            <input
+              type="text"
+              className="mt-1 border w-full px-2 py-1 rounded"
+              placeholder="Template Name"
+              value={formData.template}
+              onChange={(e) => setTemplateName(e.target.value)}
+            />
+            <div className="flex gap-2 mt-1">
+              <button className="bg-blue-500 text-white px-2 py-1 rounded text-sm flex-1">
+                Add Template
+              </button>
+              <button className="bg-red-500 text-white px-2 py-1 rounded text-sm flex-1">
+                Delete Template
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium block">Header</label>
+            <input
+              type="text"
+              className="border w-full px-2 py-1 rounded"
+              placeholder="e.g., CERTIFICATE OF LIVE BIRTH"
+              value={headerName}
+              onChange={(e) => setHeaderName(e.target.value)}
+            />
+            <button className="bg-gray-700 text-white px-2 py-1 rounded text-sm mt-1 w-full">
+              Save Header Tag
+            </button>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium block">Fields</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                className="border px-2 py-1 rounded flex-1"
+                placeholder="Field Name"
+                value={fieldName}
+                onChange={(e) => setFieldName(e.target.value)}
+              />
+              <button className="bg-green-500 text-white px-2 py-1 rounded text-sm">
+                Save Field
+              </button>
+              <button className="bg-red-500 text-white px-2 py-1 rounded text-sm">
+                Delete Field
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium block">Select PDF</label>
+            <div className="flex gap-2">
+              <input
+                type="file"
+                className="border px-2 py-1 rounded flex-1"
+                onChange={(e) => setSelectedPDF(e.target.files?.[0] || null)}
+              />
+              <button className="bg-gray-600 text-white px-3 py-1 rounded text-sm">
+                Upload
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT PANEL */}
+        <div className="w-2/3 space-y-4">
+          {/* Coordinates Table */}
+          <div className="overflow-auto max-h-40 border rounded">
+            <table className="text-sm w-full table-auto border-collapse">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="border px-2 py-1 text-left">Field Name</th>
+                  <th className="border px-2 py-1">X</th>
+                  <th className="border px-2 py-1">Y</th>
+                  <th className="border px-2 py-1">Width</th>
+                  <th className="border px-2 py-1">Height</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fields.map((field, idx) => (
+                  <tr key={idx}>
+                    <td className="border px-2 py-1">{field.name}</td>
+                    <td className="border px-2 py-1 text-center">{field.x}</td>
+                    <td className="border px-2 py-1 text-center">{field.y}</td>
+                    <td className="border px-2 py-1 text-center">
+                      {field.width}
+                    </td>
+                    <td className="border px-2 py-1 text-center">
+                      {field.height}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Image Display */}
+          <div className="h-[500px] border rounded overflow-hidden">
+            <img
+              src="/sample.png"
+              alt="OCR Template"
+              className="object-contain w-full h-full"
+            />
+          </div>
+        </div>
       </div>
-      <Textarea
-        placeholder="Extracted text will appear here..."
-        value={ocrText}
-        readOnly
-        size="sm"
-        minH="200px"
-        borderColor="gray.300"
-      />
     </div>
   );
 };

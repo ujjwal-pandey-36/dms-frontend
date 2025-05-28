@@ -46,7 +46,7 @@ const Sidebar: React.FC = () => {
     { name: "Pending Approvals", icon: FileCheck, path: "/pending-approvals" },
     { name: "Recent Activity", icon: Clock, path: "/activity" },
     { name: "Department Files", icon: FolderClosed, path: "/department" },
-    { name: "Team", icon: Users, path: "/team" },
+    // { name: "Team", icon: Users, path: "/team" },
     {
       name: "Users Settings",
       icon: Users,
@@ -64,15 +64,15 @@ const Sidebar: React.FC = () => {
       ],
     },
 
-    {
-      name: "Locations",
-      icon: Map,
-      submenu: [
-        { name: "Regions", path: "/locations/regions" },
-        { name: "Municipalities", path: "/locations/municipalities" },
-        { name: "Barangays", path: "/locations/barangays" },
-      ],
-    },
+    // {
+    //   name: "Locations",
+    //   icon: Map,
+    //   submenu: [
+    //     { name: "Regions", path: "/locations/regions" },
+    //     { name: "Municipalities", path: "/locations/municipalities" },
+    //     { name: "Barangays", path: "/locations/barangays" },
+    //   ],
+    // },
     {
       name: "OCR",
       icon: BookOpenCheck,
@@ -82,11 +82,11 @@ const Sidebar: React.FC = () => {
         { name: "Handwritten", path: "/ocr/handwritten" },
       ],
     },
-    {
-      name: "LGU Maintenance",
-      path: "/lgu",
-      icon: SlidersHorizontal,
-    },
+    // {
+    //   name: "LGU Maintenance",
+    //   path: "/lgu",
+    //   icon: SlidersHorizontal,
+    // },
     { name: "Settings", icon: Settings, path: "/settings" },
   ];
 
@@ -112,7 +112,7 @@ const Sidebar: React.FC = () => {
         </button>
       </div>
 
-      <nav className="flex-1 pt-4 pb-4 overflow-y-auto">
+      <nav className="flex-1 pt-4 pb-4 hide-scrollbar overflow-y-auto ">
         <ul className="space-y-1 px-2">
           {navItems.map((item) => (
             <li key={item.name}>

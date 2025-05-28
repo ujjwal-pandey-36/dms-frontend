@@ -9,6 +9,7 @@ import {
   Save,
 } from "lucide-react";
 import { useState } from "react";
+import { FieldSettingsPanel } from "../FieldSetting";
 type PermissionKey =
   | "view"
   | "add"
@@ -36,7 +37,7 @@ export const AllocationPanel = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedDept, setSelectedDept] = useState("Payroll");
   const [selectedSubDept, setSelectedSubDept] = useState("SAMPLE DOCUMENTS");
-
+  const [showFieldsPanel, setShowFieldsPanel] = useState(false);
   const [users, setUsers] = useState<UserPermission[]>([
     {
       username: "admin",
@@ -88,14 +89,17 @@ export const AllocationPanel = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold text-gray-800">Allocation</h2>
-        <button className="flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm hover:bg-blue-200">
+        <button
+          className="flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm hover:bg-blue-200"
+          onClick={() => setShowFieldsPanel(!showFieldsPanel)}
+        >
           <SlidersHorizontal className="w-4 h-4" />
           Fields
         </button>
       </div>
-
+      {showFieldsPanel && <FieldSettingsPanel />}
       {/* Search */}
-      <div className="flex items-center gap-3">
+      {/* <div className="flex items-center gap-3">
         <button className="flex items-center gap-1 px-4 py-2 rounded-full bg-blue-600 text-white text-sm hover:bg-blue-700">
           <Search className="w-4 h-4" />
           Search
@@ -105,7 +109,7 @@ export const AllocationPanel = () => {
           placeholder="Search..."
           className="flex-1 border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-      </div>
+      </div> */}
 
       {/* Department Selection */}
       <div className="border rounded-md p-4 bg-blue-50 space-y-4">

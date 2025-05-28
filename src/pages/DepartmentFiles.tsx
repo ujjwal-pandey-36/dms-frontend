@@ -21,23 +21,24 @@ const DepartmentFiles: React.FC = () => {
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">
         Department Files
       </h1>
-
-      {Object.entries(documentsByDepartment).map(([department, docs]) => (
-        <div key={department} className="mb-8">
-          <h2 className="text-xl font-medium text-gray-900 mb-4">
-            {department}
-          </h2>
-          <div className="w-full flex gap-4 flex-wrap">
-            {docs.map((document) => (
-              <DocumentCard
-                key={document.id}
-                document={document}
-                onClick={() => navigate(`/documents/${document.id}`)}
-              />
-            ))}
+      <div className="w-full flex gap-4 flex-wrap">
+        {Object.entries(documentsByDepartment).map(([department, docs]) => (
+          <div key={department} className="mb-8">
+            <h2 className="text-xl font-medium text-gray-900 mb-4">
+              {department}
+            </h2>
+            <div className="w-full flex gap-4 flex-wrap">
+              {docs.map((document) => (
+                <DocumentCard
+                  key={document.id}
+                  document={document}
+                  onClick={() => navigate(`/documents/${document.id}`)}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };
