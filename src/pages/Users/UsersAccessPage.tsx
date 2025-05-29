@@ -136,7 +136,33 @@ const UserAccessPage = () => {
     setHasChanges(false);
     toast.success("Changes saved successfully!");
   };
+  const handleCancel = () => {
+    // Reset to original data
+    setRolesData(originalRolesData);
+    // If the currently selected role was a new unsaved role, switch back to Administrator
+    if (!originalRolesData.some((r) => r.role === selectedRole)) {
+      setSelectedRole("Administrator");
+    }
+    setHasChanges(false);
+  };
+  const handleToggleAll = (field: keyof Permission) => {
+    const currentPermissions = currentRoleData.permissions;
+    const allChecked = currentPermissions.every((perm) => perm[field]);
 
+    setRolesData((prev) =>
+      prev.map((role) =>
+        role.role === selectedRole
+          ? {
+              ...role,
+              permissions: role.permissions.map((perm) => ({
+                ...perm,
+                [field]: !allChecked,
+              })),
+            }
+          : role
+      )
+    );
+  };
   return (
     <div className="flex flex-col  bg-white rounded-md shadow-lg">
       <header className="text-left flex-1 py-4 px-6">
@@ -218,7 +244,19 @@ const UserAccessPage = () => {
                     key={col}
                     className="px-6 py-3 text-center text-xs font-medium text-blue-800 uppercase tracking-wider"
                   >
-                    {col}
+                    <div className="flex flex-col items-center">
+                      <span>{col}</span>
+                      <input
+                        type="checkbox"
+                        checked={currentRoleData.permissions.every(
+                          (perm) => perm[col.toLowerCase() as keyof Permission]
+                        )}
+                        onChange={() =>
+                          handleToggleAll(col.toLowerCase() as keyof Permission)
+                        }
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
+                      />
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -256,10 +294,12 @@ const UserAccessPage = () => {
         <div className="mt-6 flex justify-end space-x-3">
           <button
             className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            onClick={() => {
-              setRolesData(originalRolesData);
-              setHasChanges(false);
-            }}
+            // onClick={() => {
+
+            //   setRolesData(originalRolesData);
+            //   setHasChanges(false);
+            // }}
+            onClick={handleCancel}
           >
             Cancel
           </button>

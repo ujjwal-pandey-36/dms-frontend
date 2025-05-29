@@ -4,6 +4,7 @@ export interface User {
   email: string;
   role: string;
   avatar: string;
+  password?: string;
 }
 // ---------------NEW TYPES------------------
 export interface UserAccess {

@@ -1,15 +1,14 @@
 import {
-  // ChevronDown,
   PlusCircle,
   Trash2,
   Pencil,
-  Search,
-  SlidersHorizontal,
-  // Check,
   Save,
+  X,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useState } from "react";
 import { FieldSettingsPanel } from "../FieldSetting";
+
 type PermissionKey =
   | "view"
   | "add"
@@ -20,9 +19,10 @@ type PermissionKey =
 
 type UserPermission = {
   username: string;
+  isEditing?: boolean;
 } & Record<PermissionKey, boolean>;
 
-const mockUsers = ["admin", "johndoe", "janedoe", "someone"];
+const mockUsers = ["admin", "manager", "users", "hr"];
 
 const defaultPermissions = {
   view: true,
@@ -34,7 +34,6 @@ const defaultPermissions = {
 };
 
 export const AllocationPanel = () => {
-  const [isEditMode, setIsEditMode] = useState(false);
   const [selectedDept, setSelectedDept] = useState("Payroll");
   const [selectedSubDept, setSelectedSubDept] = useState("SAMPLE DOCUMENTS");
   const [showFieldsPanel, setShowFieldsPanel] = useState(false);
@@ -44,36 +43,66 @@ export const AllocationPanel = () => {
       ...defaultPermissions,
     },
   ]);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
 
   const departments = ["Payroll", "HR", "Finance"];
   const subDepartments = ["SAMPLE DOCUMENTS", "CONTRACTS", "REPORTS"];
 
-  const handleEditClick = () => {
-    if (!isEditMode) {
-      const editableUsers = mockUsers.map((username) => ({
-        username,
-        view: true,
-        add: true,
-        edit: false,
-        delete: false,
-        print: true,
-        confidential: false,
-      }));
-      setUsers(editableUsers);
-    }
-    setIsEditMode(!isEditMode);
-  };
-
   const togglePermission = (username: string, field: PermissionKey) => {
     setUsers((prev) =>
-      prev.map((user: UserPermission) =>
+      prev.map((user) =>
         user.username === username ? { ...user, [field]: !user[field] } : user
       )
     );
   };
 
+  const toggleEditMode = (username: string) => {
+    setUsers((prev) =>
+      prev.map((user) =>
+        user.username === username
+          ? { ...user, isEditing: !user.isEditing }
+          : { ...user, isEditing: false }
+      )
+    );
+  };
+
+  const saveUser = (username: string) => {
+    setUsers((prev) =>
+      prev.map((user) =>
+        user.username === username ? { ...user, isEditing: false } : user
+      )
+    );
+  };
+
+  const addUser = () => {
+    if (newUsername && !users.some((u) => u.username === newUsername)) {
+      setUsers([
+        ...users,
+        {
+          username: newUsername,
+          view: true,
+          add: false,
+          edit: false,
+          delete: false,
+          print: false,
+          confidential: false,
+          isEditing: false,
+        },
+      ]);
+      setNewUsername("");
+      setShowAddUser(false);
+    }
+  };
+
+  const removeUser = (username: string) => {
+    if (username !== "admin") {
+      setUsers(users.filter((user) => user.username !== username));
+    }
+  };
+
   const handleSubDeptAdd = () => {
-    const name = prompt("Enter  Sub-Department name:");
+    const name = prompt("Enter Sub-Department name:");
     if (name) alert(`Sub-Department "${name}" added.`);
   };
 
@@ -90,11 +119,9 @@ export const AllocationPanel = () => {
       <header className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-blue-800">Allocation</h1>
-          <header>
-            <p className="mt-2 text-gray-600">
-              Allocate user access and fields to documents
-            </p>
-          </header>
+          <p className="mt-2 text-gray-600">
+            Allocate user access and fields to documents
+          </p>
         </div>
         <button
           className="flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm hover:bg-blue-200"
@@ -104,19 +131,8 @@ export const AllocationPanel = () => {
           Fields
         </button>
       </header>
+
       {showFieldsPanel && <FieldSettingsPanel />}
-      {/* Search */}
-      {/* <div className="flex items-center gap-3">
-        <button className="flex items-center gap-1 px-4 py-2 rounded-full bg-blue-600 text-white text-sm hover:bg-blue-700">
-          <Search className="w-4 h-4" />
-          Search
-        </button>
-        <input
-          type="text"
-          placeholder="Search..."
-          className="flex-1 border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div> */}
 
       {/* Department Selection */}
       <div className="border rounded-md p-4 bg-blue-50 space-y-4">
@@ -171,6 +187,38 @@ export const AllocationPanel = () => {
         </div>
       </div>
 
+      {/* Add User Form */}
+      {showAddUser && (
+        <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-md">
+          <select
+            value={newUsername}
+            onChange={(e) => setNewUsername(e.target.value)}
+            className="flex-1 px-4 py-2 rounded-md bg-white border border-gray-300 text-sm"
+          >
+            <option value="">Select user to add</option>
+            {mockUsers
+              .filter((user) => !users.some((u) => u.username === user))
+              .map((user) => (
+                <option key={user} value={user}>
+                  {user}
+                </option>
+              ))}
+          </select>
+          <button
+            onClick={addUser}
+            className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700"
+          >
+            Add
+          </button>
+          <button
+            onClick={() => setShowAddUser(false)}
+            className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 text-sm hover:bg-gray-300"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
       {/* Permissions Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full border rounded-md text-sm">
@@ -183,11 +231,17 @@ export const AllocationPanel = () => {
               <th className="px-4 py-2">Delete</th>
               <th className="px-4 py-2">Print</th>
               <th className="px-4 py-2">Confidential</th>
+              <th className="px-4 py-2">Actions</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.username} className="bg-white text-gray-700">
+              <tr
+                key={user.username}
+                className={`bg-white text-gray-700 ${
+                  user.isEditing ? "bg-blue-50" : ""
+                }`}
+              >
                 <td className="px-4 py-2 font-medium">{user.username}</td>
                 {(
                   [
@@ -203,13 +257,58 @@ export const AllocationPanel = () => {
                     <input
                       type="checkbox"
                       checked={user[field]}
-                      onChange={() =>
-                        isEditMode && togglePermission(user.username, field)
+                      onChange={() => togglePermission(user.username, field)}
+                      disabled={
+                        (!user.isEditing && user.username !== "admin") ||
+                        user.username === "admin"
                       }
-                      disabled={!isEditMode}
+                      className={`h-4 w-4 ${
+                        user.username === "admin" ? "cursor-not-allowed" : ""
+                      }`}
                     />
                   </td>
                 ))}
+                <td className="px-4 py-2 text-center">
+                  {user.username !== "admin" && (
+                    <div className="flex justify-center gap-2">
+                      {user.isEditing ? (
+                        <>
+                          <button
+                            onClick={() => saveUser(user.username)}
+                            className="text-green-600 hover:text-green-800"
+                            title="Save"
+                          >
+                            <Save className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => toggleEditMode(user.username)}
+                            className="text-gray-600 hover:text-gray-800"
+                            title="Cancel"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => toggleEditMode(user.username)}
+                            className="text-blue-600 hover:text-blue-800"
+                            title="Edit"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => removeUser(user.username)}
+                            className="text-red-600 hover:text-red-800"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -218,20 +317,17 @@ export const AllocationPanel = () => {
 
       {/* Footer Buttons */}
       <div className="flex gap-2">
-        <button className="flex items-center gap-1 px-4 py-2 rounded-full bg-blue-600 text-white text-sm hover:bg-blue-700">
-          <PlusCircle className="w-4 h-4" />
-          Add
-        </button>
         <button
-          onClick={handleEditClick}
-          className="flex items-center gap-1 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm hover:bg-blue-200"
+          onClick={() => setShowAddUser(true)}
+          disabled={showAddUser || mockUsers.length === users.length}
+          className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm ${
+            showAddUser || mockUsers.length === users.length
+              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700"
+          }`}
         >
-          {isEditMode ? (
-            <Save className="w-4 h-4" />
-          ) : (
-            <Pencil className="w-4 h-4" />
-          )}
-          {isEditMode ? "Save" : "Edit"}
+          <PlusCircle className="w-4 h-4" />
+          Add User
         </button>
       </div>
     </div>

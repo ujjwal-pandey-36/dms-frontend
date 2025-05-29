@@ -1,35 +1,44 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
 import { FileText } from "lucide-react";
-
+import toast, { Toaster } from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react"; // Import eye icons
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useUser();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Basic validation
+    if (!email || !password) {
+      toast.error("Please enter both email and password");
+      return;
+    }
+
     setIsLoading(true);
-    setError("");
 
     try {
-      // Simulate login delay
+      // Simulate network delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // For demo purposes, login with any credentials
-      if (email && password) {
-        login({ email });
+      // Attempt login
+      const user = login({ email, password });
+
+      if (user) {
+        toast.success("Login successful!");
         navigate("/home");
       } else {
-        setError("Please enter both email and password.");
+        toast.error("Invalid email or password");
       }
-    } catch (err) {
-      setError("Invalid credentials. Please try again.");
+    } catch (error) {
+      // This will catch any errors thrown by the login function
+      toast.error("Invalid email or password");
     } finally {
       setIsLoading(false);
     }
@@ -64,35 +73,41 @@ const Login: React.FC = () => {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none  relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm pr-10"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 z-10"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
             </div>
           </div>
-
-          {error && (
-            <div className="text-sm text-red-600 bg-red-50 p-2 rounded-md">
-              {error}
-            </div>
-          )}
 
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -111,12 +126,12 @@ const Login: React.FC = () => {
             </div>
 
             <div className="text-sm">
-              <a
-                href="#forgot-password"
+              <Link
+                to="#"
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
                 Forgot your password?
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -131,6 +146,30 @@ const Login: React.FC = () => {
           </div>
         </form>
       </div>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: "#363636",
+            color: "#fff",
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: "#10B981",
+              secondary: "white",
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: "#EF4444",
+              secondary: "white",
+            },
+          },
+        }}
+      />
     </div>
   );
 };

@@ -83,7 +83,7 @@ const Sidebar: React.FC = () => {
       submenu: [
         { name: "Unrecorded", path: "/ocr/unrecorded" },
         { name: "Template", path: "/ocr/template" },
-        { name: "Handwritten", path: "/ocr/handwritten" },
+        // { name: "Handwritten", path: "/ocr/handwritten" },
       ],
     },
     // {
@@ -116,7 +116,7 @@ const Sidebar: React.FC = () => {
         </button>
       </div>
 
-      <nav className="flex-1 pt-4 pb-4 hide-scrollbar overflow-y-auto ">
+      <nav className="flex-1 pt-4 pb-4 sidebar-custom-scrollbar overflow-y-auto ">
         <ul className="space-y-1 px-2">
           {navItems.map((item) => (
             <li key={item.name}>

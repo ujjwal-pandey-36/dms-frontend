@@ -57,8 +57,8 @@ const Dashboard: React.FC = () => {
         {statCards.map((stat, index) => (
           <div
             key={index}
-            className={`${stat.color} bg-slate-50 rounded-xl border border-gray-200 shadow-lg p-4 flex items-center transition-transform hover:scale-[1.02] cursor-pointer`}
-            onClick={() => navigate("/documents")}
+            className={`${stat.color} bg-slate-50 rounded-xl border border-gray-200 shadow-lg p-4 flex items-center transition-transform`}
+            // onClick={() => navigate("/documents")}
           >
             <div className="mr-4">{stat.icon}</div>
             <div>
