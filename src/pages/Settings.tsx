@@ -36,9 +36,9 @@ const Settings: React.FC = () => {
               </h3>
               <div className="space-y-4">
                 <button
-                  onClick={() => {
-                    navitage("/settings/change-password");
-                  }}
+                  // onClick={() => {
+                  //   navitage("/settings/change-password");
+                  // }}
                   className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
                 >
                   <div className="flex items-center">
@@ -54,7 +54,7 @@ const Settings: React.FC = () => {
                   </div>
                 </button>
 
-                <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                {/* <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
                   <div className="flex items-center">
                     <Bell className="h-5 w-5 text-gray-400 mr-3" />
                     <div className="text-left">
@@ -66,9 +66,9 @@ const Settings: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                </button>
+                </button> */}
 
-                <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                {/* <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
                   <div className="flex items-center">
                     <Shield className="h-5 w-5 text-gray-400 mr-3" />
                     <div className="text-left">
@@ -80,7 +80,7 @@ const Settings: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

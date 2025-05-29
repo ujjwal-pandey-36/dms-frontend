@@ -227,45 +227,53 @@ export default function DocumentUpload() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <table className="w-full text-sm border mt-4">
-          <thead className="bg-blue-100">
-            <tr>
-              <th className="border p-2">File</th>
-              <th className="border p-2">Name</th>
-              <th className="border p-2">Description</th>
-              <th className="border p-2">Expiration</th>
-              <th className="border p-2">Attachment</th>
-              <th className="border p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredDocs.map((doc) => (
-              <tr key={doc.id} className="odd:bg-gray-50 even:bg-white">
-                <td className="border p-2">{doc.id}</td>
-                <td className="border p-2">{doc.name}</td>
-                <td className="border p-2">{doc.description}</td>
-                <td className="border p-2">{doc.expirationDate || "-"}</td>
-                <td className="border p-2">{doc.fileName || "-"}</td>
-                <td className="border p-2 flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(doc.id)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDelete(doc.id)}
-                  >
-                    Delete
-                  </Button>
-                </td>
+        {filteredDocs.length === 0 ? (
+          <p className="text-gray-600 text-2xl font-semibold text-center">
+            No documents found.
+          </p>
+        ) : (
+          <table className="w-full text-sm border mt-4">
+            <thead className="bg-blue-100">
+              <tr>
+                <th className="border p-2">File</th>
+                <th className="border p-2">Name</th>
+                <th className="border p-2">Description</th>
+                <th className="border p-2">Expiration</th>
+                <th className="border p-2">Attachment</th>
+                <th className="border p-2">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredDocs.map((doc) => (
+                <tr key={doc.id} className="odd:bg-gray-50 even:bg-white">
+                  <td className="border p-2">{doc.id}</td>
+                  <td className="border p-2">{doc.name}</td>
+                  <td className="border p-2">{doc.description}</td>
+                  <td className="border p-2">{doc.expirationDate || "-"}</td>
+                  <td className="border p-2">{doc.fileName || "-"}</td>
+                  <td className="border p-2 flex gap-2 w-full">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(doc.id)}
+                      className="w-full"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(doc.id)}
+                      className="w-full"
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
