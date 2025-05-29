@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 const mockUsers: User[] = [
   {
     id: "user-1",
-    name: "John Doe",
+    name: "Test",
     email: "test@sofueled.com",
     role: "Admin",
     password: "test123",

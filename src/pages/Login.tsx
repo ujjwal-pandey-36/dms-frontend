@@ -109,7 +109,7 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          {/* <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
                 id="remember-me"
@@ -133,7 +133,7 @@ const Login: React.FC = () => {
                 Forgot your password?
               </Link>
             </div>
-          </div>
+          </div> */}
 
           <div>
             <button

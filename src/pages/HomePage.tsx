@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "../components/ui/Card";
 import { FileText, Users, Settings } from "lucide-react";
 
 export const HomePage: React.FC = () => {

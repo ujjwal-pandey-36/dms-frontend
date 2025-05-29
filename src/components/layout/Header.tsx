@@ -78,7 +78,7 @@ const Header: React.FC = () => {
               <span className="sr-only">View notifications</span>
               <Bell className="h-6 w-6" />
               {unreadNotifications > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 rounded-full h-5 w-5 flex items-center justify-center text-xs text-white">
+                <span className="absolute -top-0 -right-1 bg-red-500 rounded-full h-4 w-4 flex items-center justify-center text-xs text-white">
                   {unreadNotifications}
                 </span>
               )}
