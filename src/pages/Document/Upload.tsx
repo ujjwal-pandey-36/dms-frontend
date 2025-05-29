@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { Search } from "lucide-react";
 import React, { useState } from "react";
 
 interface Document {
@@ -98,123 +99,134 @@ export default function DocumentUpload() {
 
   return (
     <div className="p-6 space-y-6 bg-white text-blue-900">
-      <Card>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              {/* <label>Department</label> */}
-              <Select
-                label="Department"
-                value={newDoc.department}
-                onChange={(e) =>
-                  setNewDoc({ ...newDoc, department: e.target.value })
-                }
-                options={dummyDepartments}
-              />
-            </div>
-            <div>
-              {/* <label>Subdepartment</label> */}
-              <Select
-                label="Subdepartment"
-                value={newDoc.subdepartment}
-                onChange={(e) =>
-                  setNewDoc({ ...newDoc, subdepartment: e.target.value })
-                }
-                options={dummySubdepartments}
-              />
-            </div>
-            <div>
-              <label>File Description</label>
-              <Input
-                value={newDoc.fileDescription || ""}
-                onChange={(e) =>
-                  setNewDoc({ ...newDoc, fileDescription: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <label>File Date</label>
-              <Input
-                type="date"
-                value={newDoc.fileDate}
-                onChange={(e) =>
-                  setNewDoc({ ...newDoc, fileDate: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <label>Name</label>
-              <Input
-                value={newDoc.name || ""}
-                onChange={(e) => setNewDoc({ ...newDoc, name: e.target.value })}
-              />
-            </div>
-            <div>
-              <label>Description</label>
-              <Input
-                value={newDoc.description || ""}
-                onChange={(e) =>
-                  setNewDoc({ ...newDoc, description: e.target.value })
-                }
-              />
-            </div>
-            <div>
-              <label>Expiration Date</label>
-              <Input
-                type="date"
-                value={newDoc.expirationDate}
-                onChange={(e) =>
-                  setNewDoc({ ...newDoc, expirationDate: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={newDoc.confidential}
-                // onCheckedChange={(val) =>
-                //   setNewDoc({ ...newDoc, confidential: Boolean(val) })
-                // }
-                onChange={(e) =>
-                  setNewDoc({ ...newDoc, confidential: e.target.checked })
-                }
-              />
-              <label>Confidential</label>
-            </div>
-            <div className="col-span-2">
-              <label>Remarks</label>
-              <textarea
-                className="w-full border rounded p-2"
-                rows={3}
-                value={newDoc.remarks || ""}
-                onChange={(e) =>
-                  setNewDoc({ ...newDoc, remarks: e.target.value })
-                }
-              ></textarea>
-            </div>
-            <div>
-              <label>Attachment</label>
-              <Input type="file" onChange={handleAttach} />
-              {selectedFile && (
-                <p className="text-sm mt-1 text-blue-700">
-                  Attached: {selectedFile.name}
-                </p>
-              )}
-            </div>
+      <header>
+        <div className="text-left flex-1">
+          <h1 className="text-3xl font-bold text-blue-800">Upload</h1>
+          <p className="mt-2 text-gray-600">
+            Upload files to the system for easy access and organization.{" "}
+          </p>
+        </div>
+      </header>
+      {/* <Card> */}
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4 text-black">
+          <div>
+            {/* <label>Department</label> */}
+            <Select
+              label="Department"
+              value={newDoc.department}
+              onChange={(e) =>
+                setNewDoc({ ...newDoc, department: e.target.value })
+              }
+              options={dummyDepartments}
+            />
           </div>
-          <Button onClick={handleAddOrUpdate}>
+          <div>
+            {/* <label>Subdepartment</label> */}
+            <Select
+              label="Sub-Department"
+              value={newDoc.subdepartment}
+              onChange={(e) =>
+                setNewDoc({ ...newDoc, subdepartment: e.target.value })
+              }
+              options={dummySubdepartments}
+            />
+          </div>
+          <div>
+            <label>File Description</label>
+            <Input
+              value={newDoc.fileDescription || ""}
+              onChange={(e) =>
+                setNewDoc({ ...newDoc, fileDescription: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label>File Date</label>
+            <Input
+              type="date"
+              value={newDoc.fileDate}
+              onChange={(e) =>
+                setNewDoc({ ...newDoc, fileDate: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label>Name</label>
+            <Input
+              value={newDoc.name || ""}
+              onChange={(e) => setNewDoc({ ...newDoc, name: e.target.value })}
+            />
+          </div>
+          <div>
+            <label>Description</label>
+            <Input
+              value={newDoc.description || ""}
+              onChange={(e) =>
+                setNewDoc({ ...newDoc, description: e.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label>Expiration Date</label>
+            <Input
+              type="date"
+              value={newDoc.expirationDate}
+              onChange={(e) =>
+                setNewDoc({ ...newDoc, expirationDate: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={newDoc.confidential}
+              // onCheckedChange={(val) =>
+              //   setNewDoc({ ...newDoc, confidential: Boolean(val) })
+              // }
+              onChange={(e) =>
+                setNewDoc({ ...newDoc, confidential: e.target.checked })
+              }
+            />
+            <label>Confidential</label>
+          </div>
+          <div className="col-span-2">
+            <label>Remarks</label>
+            <textarea
+              className="w-full border rounded p-2"
+              rows={3}
+              value={newDoc.remarks || ""}
+              onChange={(e) =>
+                setNewDoc({ ...newDoc, remarks: e.target.value })
+              }
+            ></textarea>
+          </div>
+          <div>
+            <label>Attachment</label>
+            <Input type="file" onChange={handleAttach} />
+            {selectedFile && (
+              <p className="text-sm mt-1 text-blue-700">
+                Attached: {selectedFile.name}
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="flex justify-center ">
+          <Button onClick={handleAddOrUpdate} className="w-1/4">
             {editId ? "Update" : "Add"} Document
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+      {/* </Card> */}
 
       <Card>
         <CardContent className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Document List</h2>
+          <div className="flex justify-between items-center w-full">
+            <h2 className="text-lg font-semibold w-full">Document List</h2>
             <Input
-              className="w-1/3"
+              className="w-full"
               placeholder="Search by Name or Description"
+              icon={<Search />}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

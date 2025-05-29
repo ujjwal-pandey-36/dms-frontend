@@ -73,22 +73,22 @@ export const AllocationPanel = () => {
   };
 
   const handleSubDeptAdd = () => {
-    const name = prompt("Enter subdepartment name:");
-    if (name) alert(`Subdepartment "${name}" added.`);
+    const name = prompt("Enter  Sub-Department name:");
+    if (name) alert(`Sub-Department "${name}" added.`);
   };
 
   const handleSubDeptDelete = () => {
     const confirmDelete = confirm(
       `Are you sure you want to delete "${selectedSubDept}"?`
     );
-    if (confirmDelete) alert(`Subdepartment "${selectedSubDept}" deleted.`);
+    if (confirmDelete) alert(`Sub-Department "${selectedSubDept}" deleted.`);
   };
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-800">Allocation</h2>
+        <h1 className="text-3xl font-bold text-blue-800">Allocation</h1>
         <button
           className="flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm hover:bg-blue-200"
           onClick={() => setShowFieldsPanel(!showFieldsPanel)}
@@ -131,7 +131,7 @@ export const AllocationPanel = () => {
 
           <div>
             <label className="text-sm text-gray-600 mb-1 block">
-              Subdepartment
+              Sub-Department
             </label>
             <select
               value={selectedSubDept}
@@ -152,7 +152,7 @@ export const AllocationPanel = () => {
             className="flex items-center gap-1 px-4 py-2 rounded-full bg-blue-600 text-white text-sm hover:bg-blue-700"
           >
             <PlusCircle className="w-4 h-4" />
-            Add Subdepartment
+            Add Sub-Department
           </button>
           <button
             onClick={handleSubDeptDelete}
@@ -192,14 +192,15 @@ export const AllocationPanel = () => {
                     "confidential",
                   ] as PermissionKey[]
                 ).map((field) => (
-                  <td
-                    key={field}
-                    className="text-center cursor-pointer"
-                    onClick={() =>
-                      isEditMode && togglePermission(user.username, field)
-                    }
-                  >
-                    {user[field] ? "✅" : "❌"}
+                  <td key={field} className="text-center">
+                    <input
+                      type="checkbox"
+                      checked={user[field]}
+                      onChange={() =>
+                        isEditMode && togglePermission(user.username, field)
+                      }
+                      disabled={!isEditMode}
+                    />
                   </td>
                 ))}
               </tr>

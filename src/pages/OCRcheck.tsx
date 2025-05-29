@@ -91,7 +91,7 @@ export const OCRUploader = () => {
 
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-8">
-      <h1 className="text-2xl font-bold mb-6 text-blue-600 text-center">
+      <h1 className="text-3xl font-bold text-blue-800 mb-6 text-center">
         OCR File Extractor
       </h1>
 

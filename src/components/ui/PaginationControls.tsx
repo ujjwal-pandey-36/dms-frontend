@@ -34,7 +34,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
   return (
     <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
       <div className="flex items-center space-x-2">
-        <span className="text-sm text-gray-700">Rows per page:</span>
+        <span className="text-sm text-gray-700">Rows Per Page :</span>
         <select
           value={itemsPerPage}
           onChange={(e) => onItemsPerPageChange(Number(e.target.value))}

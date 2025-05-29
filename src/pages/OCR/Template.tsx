@@ -52,7 +52,7 @@ export const TemplateOCR = () => {
 
           <div>
             <Select
-              label="Subdepartment"
+              label="Sub-Department"
               value={formData.subdepartment}
               onChange={(e) =>
                 setFormData({ ...formData, subdepartment: e.target.value })

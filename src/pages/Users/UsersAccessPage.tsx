@@ -22,7 +22,7 @@ const permissionNames = [
   "User Access",
   "Department",
   "Digitization Documents",
-  "Subdepartment",
+  "Sub-Department",
   "Fields",
   "Batch Upload",
   "Allocation",

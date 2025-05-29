@@ -33,9 +33,7 @@ export const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white px-4 sm:px-8 md:px-16 py-10">
       <header className="mb-12 text-center md:text-left">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-          Welcome to DMS
-        </h1>
+        <h1 className="text-3xl font-bold text-blue-800">Welcome to DMS</h1>
         <p className="mt-2 text-lg text-gray-600">
           Select a module to begin working with your documents
         </p>

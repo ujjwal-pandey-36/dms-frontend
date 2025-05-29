@@ -134,7 +134,7 @@ function App() {
                 {/* </Route> */}
 
                 {/* Fallback */}
-                {/* <Route path="*" element={<HomePage />} /> */}
+                <Route path="*" element={<Login />} />
               </Routes>
             </NotificationProvider>
           </DocumentProvider>

@@ -99,7 +99,7 @@ export const MunicipalitiesPage: React.FC = () => {
     <div className="py-6">
       <header className="mb-8 flex flex-wrap justify-between items-center gap-4 sm:flex-nowrap sm:gap-2">
         <div className="text-left flex-1">
-          <h1 className="text-3xl font-bold text-gray-900">Municipalities</h1>
+          <h1 className="text-3xl font-bold text-blue-800">Municipalities</h1>
           <p className="mt-2 text-gray-600">
             Manage municipalities in the system
           </p>

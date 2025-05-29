@@ -5,7 +5,7 @@ export const RPTPage: React.FC = () => {
   return (
     <div className="py-6">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-blue-800">
           Real Property Tax Module
         </h1>
         <p className="mt-2 text-gray-600">

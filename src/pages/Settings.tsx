@@ -8,7 +8,7 @@ const Settings: React.FC = () => {
   const navitage = useNavigate();
   return (
     <div className="animate-fade-in">
-      <h1 className="text-2xl font-semibold text-gray-900 mb-6">Settings</h1>
+      <h1 className="text-3xl font-bold text-blue-800 mb-6">Settings</h1>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-200">

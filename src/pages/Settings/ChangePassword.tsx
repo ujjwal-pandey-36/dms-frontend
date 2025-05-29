@@ -49,9 +49,7 @@ const ChangePassword: React.FC = () => {
         <span className="text-sm font-medium">Back to Settings</span>
       </button>
 
-      <h1 className="text-2xl font-semibold text-gray-900 mb-4">
-        Change Password
-      </h1>
+      <h1 className="text-3xl font-bold text-blue-800 mb-4">Change Password</h1>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>

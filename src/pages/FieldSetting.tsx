@@ -20,7 +20,7 @@ export const FieldSettingsPanel = () => {
           </div>
         </div>
         <div>
-          <label className="text-sm text-gray-600 block">Subdepartment</label>
+          <label className="text-sm text-gray-600 block">Sub-Department</label>
           <div className="bg-blue-100 text-blue-700 text-center py-2 rounded-md">
             None
           </div>

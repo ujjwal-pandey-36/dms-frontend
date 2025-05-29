@@ -14,7 +14,7 @@ export const BatchUploadPanel = () => {
   return (
     <div className="bg-white shadow-md rounded-xl p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-800">Batch Upload</h2>
+        <h2 className="text-3xl font-bold text-blue-800">Batch Upload</h2>
         <button className="flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm hover:bg-blue-200">
           <UploadCloud className="w-4 h-4" />
           Upload

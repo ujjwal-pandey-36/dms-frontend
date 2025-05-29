@@ -18,7 +18,7 @@ const DepartmentFiles: React.FC = () => {
 
   return (
     <div className="animate-fade-in">
-      <h1 className="text-2xl font-semibold text-gray-900 mb-6">
+      <h1 className="text-3xl font-bold text-blue-800 mb-6">
         Department Files
       </h1>
       <div className="w-full flex gap-4 flex-wrap">

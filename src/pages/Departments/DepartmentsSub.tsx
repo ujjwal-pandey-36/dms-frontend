@@ -90,9 +90,9 @@ export const DepartmentsSub: React.FC = () => {
     <div className="py-6">
       <header className="mb-8 flex flex-wrap justify-between items-center gap-4 sm:flex-nowrap sm:gap-2">
         <div className="text-left flex-1">
-          <h1 className="text-3xl font-bold text-gray-900">Sub Departments</h1>
+          <h1 className="text-3xl font-bold text-blue-800">Sub-Departments</h1>
           <p className="mt-2 text-gray-600">
-            Manage sub departments in the system
+            Manage sub-departments in the system
           </p>
         </div>
         <div className="w-full sm:w-auto">
@@ -105,17 +105,17 @@ export const DepartmentsSub: React.FC = () => {
             icon={<Plus className="h-4 w-4" />}
             className="w-full sm:w-auto"
           >
-            Create Sub Department
+            Create Sub-Department
           </Button>
         </div>
       </header>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-4">
-          <CardTitle>Sub Departments</CardTitle>
+          <CardTitle>Sub-Departments</CardTitle>
           <div className="w-full sm:w-64">
             <Input
-              placeholder="Search departments..."
+              placeholder="Search sub-departments..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
@@ -227,7 +227,7 @@ export const DepartmentsSub: React.FC = () => {
                       colSpan={3}
                       className="px-6 py-4 text-center text-sm text-gray-500"
                     >
-                      No sub departments found
+                      No sub-departments found
                     </td>
                   </tr>
                 )}
