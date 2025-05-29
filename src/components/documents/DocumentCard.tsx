@@ -49,7 +49,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document, onClick }) => {
 
   return (
     <div
-      className="card transition-transform hover:shadow-md hover:scale-[1.02] cursor-pointer overflow-hidden h-full flex flex-col rounded-xl border border-gray-200 shadow-lg"
+      className="card transition-transform hover:shadow-md hover:scale-[1.02] cursor-pointer overflow-hidden h-full flex flex-col rounded-3xl border border-gray-200 shadow-lg"
       onClick={onClick}
     >
       <div className="p-4 flex-grow splace-y-4">

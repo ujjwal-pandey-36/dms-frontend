@@ -46,8 +46,8 @@ export const HomePage: React.FC = () => {
             onClick={() => navigate(card.path)}
             className="cursor-pointer transition-transform transform hover:scale-[1.03] hover:shadow-xl border border-gray-200 rounded-3xl bg-white shadow-md"
           >
-            <Card className="h-full">
-              <CardContent className="p-8 text-center flex flex-col items-center">
+            <div className="h-full">
+              <div className="p-8 text-center flex flex-col items-center">
                 <div
                   className={`${card.bg} p-4 rounded-full mb-5 shadow-inner`}
                 >
@@ -57,8 +57,8 @@ export const HomePage: React.FC = () => {
                   {card.title}
                 </h3>
                 <p className="text-gray-600 text-sm">{card.description}</p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         ))}
       </div>
