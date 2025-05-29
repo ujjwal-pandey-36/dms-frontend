@@ -38,6 +38,7 @@ import { HandWrittenOCRUploader } from "./pages/OCR/HandWrittenDocs";
 import { TemplateOCR } from "./pages/OCR/Template";
 import UnrecordedOCR from "./pages/OCR/Unrecorded";
 import ChangePassword from "./pages/Settings/ChangePassword";
+import DocumentUpload from "./pages/Document/Upload";
 
 function App() {
   return (
@@ -82,8 +83,12 @@ function App() {
                   {/* ----------------------Document && Document Types-------------------- */}
                   {/* <Route path="/documents" element={<DocumentTypesPage />} /> */}
                   <Route
-                    path="/document-types"
+                    path="/documents/document-types"
                     element={<DocumentTypesPage />}
+                  />
+                  <Route
+                    path="/documents/upload"
+                    element={<DocumentUpload />}
                   />
                   {/* ----------------------OCR check-------------------- */}
                   <Route path="/ocr/unrecorded" element={<UnrecordedOCR />} />

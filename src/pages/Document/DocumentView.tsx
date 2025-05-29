@@ -19,7 +19,7 @@ import {
   Clock,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import FieldRestrictions from "./DocumentRestriction";
+import FieldRestrictions from "../../components/documents/DocumentRestriction";
 import { Button } from "@/components/ui/Button";
 
 type TabType =
