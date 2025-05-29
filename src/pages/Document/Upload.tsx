@@ -228,7 +228,7 @@ export default function DocumentUpload() {
           />
         </div>
         {filteredDocs.length === 0 ? (
-          <p className="text-gray-600 text-2xl font-semibold text-center">
+          <p className="text-gray-600 text-xl font-semibold text-center">
             No documents found.
           </p>
         ) : (
