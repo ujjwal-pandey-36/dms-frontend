@@ -98,16 +98,14 @@ export default function DocumentUpload() {
   );
 
   return (
-    <div className="p-6 space-y-6 bg-white text-blue-900">
-      <header>
-        <div className="text-left flex-1">
-          <h1 className="text-3xl font-bold text-blue-800">Upload</h1>
-          <p className="mt-2 text-gray-600">
-            Upload files to the system for easy access and organization.{" "}
-          </p>
-        </div>
+    <div className="flex flex-col bg-white rounded-md shadow-lg animate-fade-in p-6 space-y-4">
+      <header className="text-left flex-1">
+        <h1 className="text-3xl font-bold text-blue-800">Upload</h1>
+        <p className="mt-2 text-gray-600">
+          Upload files to the system for easy access and organization.{" "}
+        </p>
       </header>
-      {/* <Card> */}
+
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4 text-black">
           <div>
@@ -217,61 +215,58 @@ export default function DocumentUpload() {
           </Button>
         </div>
       </div>
-      {/* </Card> */}
 
-      <Card>
-        <CardContent className="space-y-4">
-          <div className="flex justify-between items-center w-full">
-            <h2 className="text-lg font-semibold w-full">Document List</h2>
-            <Input
-              className="w-full"
-              placeholder="Search by Name or Description"
-              icon={<Search />}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <table className="w-full text-sm border mt-4">
-            <thead className="bg-blue-100">
-              <tr>
-                <th className="border p-2">File</th>
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Description</th>
-                <th className="border p-2">Expiration</th>
-                <th className="border p-2">Attachment</th>
-                <th className="border p-2">Actions</th>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center w-full">
+          <h2 className="text-lg font-semibold w-full">Document List</h2>
+          <Input
+            className="w-full"
+            placeholder="Search by Name or Description"
+            icon={<Search />}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <table className="w-full text-sm border mt-4">
+          <thead className="bg-blue-100">
+            <tr>
+              <th className="border p-2">File</th>
+              <th className="border p-2">Name</th>
+              <th className="border p-2">Description</th>
+              <th className="border p-2">Expiration</th>
+              <th className="border p-2">Attachment</th>
+              <th className="border p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredDocs.map((doc) => (
+              <tr key={doc.id} className="odd:bg-gray-50 even:bg-white">
+                <td className="border p-2">{doc.id}</td>
+                <td className="border p-2">{doc.name}</td>
+                <td className="border p-2">{doc.description}</td>
+                <td className="border p-2">{doc.expirationDate || "-"}</td>
+                <td className="border p-2">{doc.fileName || "-"}</td>
+                <td className="border p-2 flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(doc.id)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleDelete(doc.id)}
+                  >
+                    Delete
+                  </Button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredDocs.map((doc) => (
-                <tr key={doc.id} className="odd:bg-gray-50 even:bg-white">
-                  <td className="border p-2">{doc.id}</td>
-                  <td className="border p-2">{doc.name}</td>
-                  <td className="border p-2">{doc.description}</td>
-                  <td className="border p-2">{doc.expirationDate || "-"}</td>
-                  <td className="border p-2">{doc.fileName || "-"}</td>
-                  <td className="border p-2 flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(doc.id)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDelete(doc.id)}
-                    >
-                      Delete
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

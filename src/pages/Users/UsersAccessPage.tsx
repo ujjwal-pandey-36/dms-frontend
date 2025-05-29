@@ -138,144 +138,142 @@ const UserAccessPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-blue-800">User Access</h1>
-          <p className="text-gray-600 mt-2">
-            Manage user permissions and access levels
-          </p>
-        </header>
+    <div className="flex flex-col  bg-white rounded-md shadow-lg">
+      <header className="text-left flex-1 py-4 px-6">
+        <h1 className="text-3xl font-bold text-blue-800">User Access</h1>
+        <p className="text-gray-600 mt-2">
+          Manage user permissions and access levels
+        </p>
+      </header>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          {/* Controls */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-            <div className="relative w-full md:w-64">
-              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search permissions..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+      <div className="p-6">
+        {/* Controls */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <div className="relative w-full md:w-64">
+            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search permissions..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {/* Role dropdown */}
+          <div className="relative w-full md:w-auto">
+            <button
+              className="flex items-center justify-between w-full md:w-48 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-left focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <span>{selectedRole}</span>
+              <FiChevronDown
+                className={`ml-2 transition-transform ${
+                  isDropdownOpen ? "rotate-180" : ""
+                }`}
               />
-            </div>
-
-            {/* Role dropdown */}
-            <div className="relative w-full md:w-auto">
-              <button
-                className="flex items-center justify-between w-full md:w-48 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-left focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              >
-                <span>{selectedRole}</span>
-                <FiChevronDown
-                  className={`ml-2 transition-transform ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              {isDropdownOpen && (
-                <div className="absolute z-10 mt-1 w-full md:w-48 bg-white shadow-lg rounded-md py-1 border border-gray-200">
-                  {rolesData.map((role) => (
-                    <button
-                      key={role.role}
-                      className={`block w-full text-left px-4 py-2 hover:bg-blue-50 ${
-                        selectedRole === role.role
-                          ? "bg-blue-100 text-blue-800"
-                          : "text-gray-700"
-                      }`}
-                      onClick={() => {
-                        setSelectedRole(role.role);
-                        setIsDropdownOpen(false);
-                      }}
-                    >
-                      {role.role}
-                    </button>
-                  ))}
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute z-10 mt-1 w-full md:w-48 bg-white shadow-lg rounded-md py-1 border border-gray-200">
+                {rolesData.map((role) => (
                   <button
+                    key={role.role}
+                    className={`block w-full text-left px-4 py-2 hover:bg-blue-50 ${
+                      selectedRole === role.role
+                        ? "bg-blue-100 text-blue-800"
+                        : "text-gray-700"
+                    }`}
                     onClick={() => {
-                      setIsDialogOpen(true);
+                      setSelectedRole(role.role);
                       setIsDropdownOpen(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-100"
                   >
-                    + Add New Role
+                    {role.role}
                   </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Permissions Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-blue-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">
-                    Description
-                  </th>
-                  {["View", "Add", "Edit", "Delete", "Print"].map((col) => (
-                    <th
-                      key={col}
-                      className="px-6 py-3 text-center text-xs font-medium text-blue-800 uppercase tracking-wider"
-                    >
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredPermissions.map((perm) => (
-                  <tr key={perm.name} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {perm.name}
-                    </td>
-                    {(["view", "add", "edit", "delete", "print"] as const).map(
-                      (field) => (
-                        <td
-                          key={field}
-                          className="px-6 py-4 whitespace-nowrap text-center"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={perm[field]}
-                            onChange={() =>
-                              handleCheckboxChange(perm.name, field)
-                            }
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                          />
-                        </td>
-                      )
-                    )}
-                  </tr>
                 ))}
-              </tbody>
-            </table>
+                <button
+                  onClick={() => {
+                    setIsDialogOpen(true);
+                    setIsDropdownOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-100"
+                >
+                  + Add New Role
+                </button>
+              </div>
+            )}
           </div>
+        </div>
 
-          {/* Action Buttons */}
-          <div className="mt-6 flex justify-end space-x-3">
-            <button
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={() => {
-                setRolesData(originalRolesData);
-                setHasChanges(false);
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              className={`px-4 py-2 rounded-md text-sm font-medium text-white focus:outline-none focus:ring-2 ${
-                hasChanges
-                  ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
-                  : "bg-gray-300 cursor-not-allowed"
-              }`}
-              onClick={handleSave}
-              disabled={!hasChanges}
-            >
-              Save Changes
-            </button>
-          </div>
+        {/* Permissions Table */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-blue-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-blue-800 uppercase tracking-wider">
+                  Description
+                </th>
+                {["View", "Add", "Edit", "Delete", "Print"].map((col) => (
+                  <th
+                    key={col}
+                    className="px-6 py-3 text-center text-xs font-medium text-blue-800 uppercase tracking-wider"
+                  >
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredPermissions.map((perm) => (
+                <tr key={perm.name} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {perm.name}
+                  </td>
+                  {(["view", "add", "edit", "delete", "print"] as const).map(
+                    (field) => (
+                      <td
+                        key={field}
+                        className="px-6 py-4 whitespace-nowrap text-center"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={perm[field]}
+                          onChange={() =>
+                            handleCheckboxChange(perm.name, field)
+                          }
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                      </td>
+                    )
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="mt-6 flex justify-end space-x-3">
+          <button
+            className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onClick={() => {
+              setRolesData(originalRolesData);
+              setHasChanges(false);
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            className={`px-4 py-2 rounded-md text-sm font-medium text-white focus:outline-none focus:ring-2 ${
+              hasChanges
+                ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+                : "bg-gray-300 cursor-not-allowed"
+            }`}
+            onClick={handleSave}
+            disabled={!hasChanges}
+          >
+            Save Changes
+          </button>
         </div>
       </div>
 

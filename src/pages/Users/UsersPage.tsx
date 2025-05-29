@@ -116,9 +116,9 @@ export const UsersPage: React.FC = () => {
   };
 
   return (
-    <div className="py-6">
-      <header className="mb-8 flex flex-wrap justify-between items-center gap-4 sm:flex-nowrap sm:gap-2">
-        <div className="text-left flex-1">
+    <div className="flex flex-col bg-white rounded-md shadow-lg">
+      <header className="flex justify-between items-center gap-4 pt-4 px-6 ">
+        <div className="text-left flex-1 ">
           <h1 className="text-3xl font-bold text-blue-800">Users</h1>
           <p className="mt-2 text-gray-600">
             Manage system users and access permissions
@@ -144,8 +144,8 @@ export const UsersPage: React.FC = () => {
         </div>
       </header>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-4">
+      <div className="p-6">
+        <div className="flex flex-row items-center justify-between flex-wrap gap-4 py-4">
           <CardTitle>System Users</CardTitle>
           <div className="w-full sm:w-64">
             <Input
@@ -156,8 +156,8 @@ export const UsersPage: React.FC = () => {
               icon={<Search className="h-4 w-4 text-gray-400" />}
             />
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <section>
           {(isCreating || isEditing) && (
             <div className="mb-6 p-4 border rounded-md">
               <h3 className="text-lg font-medium mb-4">
@@ -332,16 +332,15 @@ export const UsersPage: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </CardContent>
-      </Card>
-
-      <PaginationControls
-        currentPage={currentPage}
-        totalItems={users.length}
-        itemsPerPage={itemsPerPage}
-        onPageChange={setCurrentPage}
-        onItemsPerPageChange={setItemsPerPage}
-      />
+        </section>
+        <PaginationControls
+          currentPage={currentPage}
+          totalItems={users.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
+        />
+      </div>
     </div>
   );
 };

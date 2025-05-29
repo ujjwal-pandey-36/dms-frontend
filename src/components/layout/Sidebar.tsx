@@ -34,11 +34,11 @@ const Sidebar: React.FC = () => {
       icon: Building,
       submenu: [
         { name: "Main", path: "/departments/main" },
-        { name: "Sub-Departments", path: "/departments/sub" },
+        { name: "Sub-Department", path: "/departments/sub" },
       ],
     },
     {
-      name: "Documents Types",
+      name: "Documents",
       path: "/documents",
       icon: FileText,
       submenu: [

@@ -11,12 +11,21 @@ interface FormData {
   isLoaded: boolean;
 }
 
-interface Rect {
+export interface Rect {
   x: number;
   y: number;
   width: number;
   height: number;
 }
+export const documents = [
+  "BC-187_document-0000000349.pdf",
+  "BC-187_document-0000000348.pdf",
+  "BC-187_document-0000000347.pdf",
+  "BC-187_document-0000000346.pdf",
+  "BC-187_document-0000000345.pdf",
+  "BC-187_document-0000000344.pdf",
+  "BC-187_document-0000000343.pdf",
+];
 const OCRUnrecordedUI = () => {
   const [formData, setFormData] = useState<FormData>({
     department: "",
@@ -68,33 +77,23 @@ const OCRUnrecordedUI = () => {
       // You would send `selection` coordinates along with `selectedDoc` to your OCR backend
     }
   };
-  const documents = [
-    "BC-187_document-0000000349.pdf",
-    "BC-187_document-0000000348.pdf",
-    "BC-187_document-0000000347.pdf",
-    "BC-187_document-0000000346.pdf",
-    "BC-187_document-0000000345.pdf",
-    "BC-187_document-0000000344.pdf",
-    "BC-187_document-0000000343.pdf",
-  ];
+
   const handleLoad = () => {
     if (formData.selectedDoc) {
       setFormData({ ...formData, isLoaded: true });
     }
   };
   return (
-    <div className="flex flex-col justify-center items-center bg-white rounded-md shadow-lg">
+    <div className="flex flex-col  bg-white rounded-md shadow-lg">
       {/* HEADER */}
-      <Text
-        fontSize="2xl"
-        fontWeight="bold"
-        color="blue.600"
-        textAlign="center"
-        mb={6}
-        mt={4}
-      >
-        Unrecorded Documents
-      </Text>
+      <header className="text-left flex-1 py-4 px-6">
+        <h1 className="text-3xl font-bold text-blue-800">
+          Unrecorded Documents
+        </h1>
+        <p className="mt-2 text-gray-600">
+          Manage all unrecorded documents here
+        </p>
+      </header>
       <div className="flex gap-4 p-4 w-full">
         {/* Left Panel */}
         <div className="w-1/3 p-6 space-y-4 border-r bg-white">

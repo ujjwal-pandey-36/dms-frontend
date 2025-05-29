@@ -93,107 +93,106 @@ export const HandWrittenOCRUploader = () => {
   };
 
   return (
-    <Box
-      maxW="3xl"
-      mx="auto"
-      bg="white"
-      boxShadow="lg"
-      rounded="xl"
-      p={8}
-      className="animate-fade-in"
-    >
-      <Text
-        fontSize="2xl"
-        fontWeight="bold"
-        color="blue.600"
-        textAlign="center"
-        mb={6}
-      >
-        Handwritten OCR Extractor
-      </Text>
-
-      {/* Drag and Drop Upload Box */}
-      <Box
-        border="2px dashed #3182CE"
-        borderRadius="lg"
-        p={6}
-        textAlign="center"
-        cursor="pointer"
-        onClick={() => inputRef.current?.click()}
-        bg="gray.50"
-        _hover={{ bg: "blue.50" }}
-        mb={6}
-      >
-        <VStack>
-          <Icon as={FiUploadCloud} w={10} h={10} color="blue.400" />
-          <Text fontWeight="medium" color="gray.600">
-            Click or drag file to upload
-          </Text>
-          <Text fontSize="sm" color="gray.500">
-            Only PNG, JPEG, or PDF files are supported
-          </Text>
-        </VStack>
-        <Input
-          type="file"
-          accept=".png,.jpg,.jpeg,.pdf"
-          ref={inputRef}
-          onChange={handleFileChange}
-          display="none"
-        />
-      </Box>
-
-      {/* File Preview */}
-      {file && (
+    <div className="flex flex-col bg-white rounded-md shadow-lg animate-fade-in">
+      {/* // HEADER  */}
+      <header className="text-left flex-1 py-4 px-6">
+        <h1 className="text-3xl font-bold text-blue-800">
+          {" "}
+          Handwritten OCR Extractor
+        </h1>
+        <p className="mt-2 text-gray-600">
+          Extract text from handwritten documents
+        </p>
+      </header>
+      <main className="flex-1 p-4 md:p-6">
+        {/* Drag and Drop Upload Box */}
         <Box
-          p={4}
-          mb={4}
-          borderRadius="md"
-          border="1px solid #E2E8F0"
-          display="flex"
-          alignItems="center"
+          border="2px dashed #3182CE"
+          borderRadius="lg"
+          p={6}
+          textAlign="center"
+          cursor="pointer"
+          onClick={() => inputRef.current?.click()}
           bg="gray.50"
-          gap={3}
+          _hover={{ bg: "blue.50" }}
+          mb={6}
         >
-          <Icon
-            as={isPDF ? FiFileText : FiImage}
-            color="blue.500"
-            w={6}
-            h={6}
+          <VStack>
+            <Icon as={FiUploadCloud} w={10} h={10} color="blue.400" />
+            <Text fontWeight="medium" color="gray.600">
+              Click or drag file to upload
+            </Text>
+            <Text fontSize="sm" color="gray.500">
+              Only PNG, JPEG, or PDF files are supported
+            </Text>
+          </VStack>
+          <Input
+            type="file"
+            accept=".png,.jpg,.jpeg,.pdf"
+            ref={inputRef}
+            onChange={handleFileChange}
+            display="none"
           />
-          <Text fontSize="sm" color="gray.700">
-            {file.name}
-          </Text>
         </Box>
-      )}
 
-      <div className="flex justify-center">
-        <Button
-          variant="solid"
-          onClick={runOCR}
-          disabled={!file || loading}
-          mb={4}
-          className="bg-blue-500 hover:bg-blue-600 text-white w-1/2"
-        >
-          {loading ? <Spinner size="sm" mr={2} /> : null}
-          {loading ? "Processing..." : "Run OCR"}
-        </Button>
-      </div>
+        {/* File Preview */}
+        {file && (
+          <Box
+            p={4}
+            mb={4}
+            borderRadius="md"
+            border="1px solid #E2E8F0"
+            display="flex"
+            alignItems="center"
+            bg="gray.50"
+            gap={3}
+          >
+            <Icon
+              as={isPDF ? FiFileText : FiImage}
+              color="blue.500"
+              w={6}
+              h={6}
+            />
+            <Text fontSize="sm" color="gray.700">
+              {file.name}
+            </Text>
+          </Box>
+        )}
 
-      <Box>
-        <Text fontWeight="semibold" mb={2} fontSize="sm" color="gray.700">
-          Extracted Text
-        </Text>
-        <Textarea
-          placeholder="Extracted text will appear here..."
-          value={ocrText}
-          readOnly
-          size="sm"
-          minH="200px"
-          bg="gray.50"
-          borderColor="gray.300"
-          _focus={{ borderColor: "blue.400" }}
-        />
-      </Box>
-    </Box>
+        <div className="flex justify-center">
+          <Button
+            // variant="solid"
+            onClick={runOCR}
+            disabled={!file || loading}
+            mb={4}
+            colorPalette="blue"
+            // className="bg-blue-500 hover:bg-blue-600 text-white w-1/2"
+          >
+            {loading ? <Spinner size="sm" mr={2} /> : null}
+            {loading ? "Processing..." : "Run OCR"}
+          </Button>
+          <Button colorPalette="teal" variant="outline">
+            Call us
+          </Button>
+          <Button>Button</Button>
+        </div>
+
+        <Box>
+          <Text fontWeight="semibold" mb={2} fontSize="sm" color="gray.700">
+            Extracted Text
+          </Text>
+          <Textarea
+            placeholder="Extracted text will appear here..."
+            value={ocrText}
+            readOnly
+            size="sm"
+            minH="200px"
+            bg="gray.50"
+            borderColor="gray.300"
+            _focus={{ borderColor: "blue.400" }}
+          />
+        </Box>
+      </main>
+    </div>
   );
 };

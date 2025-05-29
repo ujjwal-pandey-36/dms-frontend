@@ -102,7 +102,7 @@ export const DepartmentsMain: React.FC = () => {
   };
 
   return (
-    <div className="py-6">
+    <div className="flex flex-col bg-white rounded-md shadow-lg animate-fade-in p-6">
       <header className="mb-8 flex flex-wrap justify-between items-center gap-4 sm:flex-nowrap sm:gap-2">
         <div className="text-left flex-1">
           <h1 className="text-3xl font-bold text-blue-800">Departments</h1>
@@ -123,9 +123,9 @@ export const DepartmentsMain: React.FC = () => {
         </div>
       </header>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-4">
-          <CardTitle>Departments</CardTitle>
+      <div className="space-y-4">
+        <div className="flex flex-row items-center justify-between flex-wrap gap-4">
+          <h2>Departments List</h2>
           <div className="w-full sm:w-64">
             <Input
               placeholder="Search departments..."
@@ -135,8 +135,8 @@ export const DepartmentsMain: React.FC = () => {
               icon={<Search className="h-4 w-4 text-gray-400" />}
             />
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div>
           {(isCreating || isEditing) && (
             <div className="mb-6 p-4 border rounded-md">
               <h3 className="text-lg font-medium mb-4">
@@ -247,8 +247,8 @@ export const DepartmentsMain: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       <PaginationControls
         currentPage={currentPage}
         totalItems={filteredDepartments.length}

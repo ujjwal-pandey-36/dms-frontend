@@ -21,9 +21,9 @@ const DepartmentFiles: React.FC = () => {
       <h1 className="text-3xl font-bold text-blue-800 mb-6">
         Department Files
       </h1>
-      <div className="w-full flex gap-4 flex-wrap">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:gap-10 gap-4">
         {Object.entries(documentsByDepartment).map(([department, docs]) => (
-          <div key={department} className="mb-8">
+          <div key={department} className="mb-8 w-full">
             <h2 className="text-xl font-medium text-gray-900 mb-4">
               {department}
             </h2>

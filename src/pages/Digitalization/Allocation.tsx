@@ -87,8 +87,15 @@ export const AllocationPanel = () => {
   return (
     <div className="bg-white shadow-md rounded-xl p-6 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-blue-800">Allocation</h1>
+      <header className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-blue-800">Allocation</h1>
+          <header>
+            <p className="mt-2 text-gray-600">
+              Allocate user access and fields to documents
+            </p>
+          </header>
+        </div>
         <button
           className="flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm hover:bg-blue-200"
           onClick={() => setShowFieldsPanel(!showFieldsPanel)}
@@ -96,7 +103,7 @@ export const AllocationPanel = () => {
           <SlidersHorizontal className="w-4 h-4" />
           Fields
         </button>
-      </div>
+      </header>
       {showFieldsPanel && <FieldSettingsPanel />}
       {/* Search */}
       {/* <div className="flex items-center gap-3">

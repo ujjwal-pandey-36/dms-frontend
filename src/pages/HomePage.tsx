@@ -14,49 +14,49 @@ export const HomePage: React.FC = () => {
       description: "Upload, organize, and manage all your documents.",
       path: "/dashboard",
     },
-    {
-      icon: <Settings className="h-8 w-8 text-teal-600" />,
-      bg: "bg-teal-100",
-      title: "Accounting",
-      description: "Manage your financial records and transactions.",
-      path: "/accounting",
-    },
-    {
-      icon: <Users className="h-8 w-8 text-amber-600" />,
-      bg: "bg-amber-100",
-      title: "RPT Module",
-      description: "Real Property Tax management and assessment.",
-      path: "/rpt",
-    },
+    // {
+    //   icon: <Settings className="h-8 w-8 text-teal-600" />,
+    //   bg: "bg-teal-100",
+    //   title: "Accounting",
+    //   description: "Manage your financial records and transactions.",
+    //   path: "/accounting",
+    // },
+    // {
+    //   icon: <Users className="h-8 w-8 text-amber-600" />,
+    //   bg: "bg-amber-100",
+    //   title: "RPT Module",
+    //   description: "Real Property Tax management and assessment.",
+    //   path: "/rpt",
+    // },
   ];
 
   return (
-    <div className="min-h-screen bg-white px-4 sm:px-8 md:px-16 py-10">
-      <header className="mb-12 text-center md:text-left">
-        <h1 className="text-3xl font-bold text-blue-800">Welcome to DMS</h1>
-        <p className="mt-2 text-lg text-gray-600">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-b from-white to-blue-50 px-4 py-16">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-blue-800">Welcome to DMS</h1>
+        <p className="mt-3 text-lg text-gray-600">
           Select a module to begin working with your documents
         </p>
-      </header>
+      </div>
 
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="w-full max-w-md">
         {cards.map((card) => (
           <div
             key={card.title}
             onClick={() => navigate(card.path)}
-            className="cursor-pointer transition-transform transform hover:scale-[1.02] hover:shadow-md border border-gray-200 rounded-2xl"
+            className="cursor-pointer transition-transform transform hover:scale-[1.03] hover:shadow-xl border border-gray-200 rounded-3xl bg-white shadow-md"
           >
             <Card className="h-full">
-              <CardContent className="p-6 sm:p-8 text-center flex flex-col h-full">
-                <div className="flex flex-col items-center mb-4">
-                  <div className={`${card.bg} p-3 rounded-full`}>
-                    {card.icon}
-                  </div>
+              <CardContent className="p-8 text-center flex flex-col items-center">
+                <div
+                  className={`${card.bg} p-4 rounded-full mb-5 shadow-inner`}
+                >
+                  {card.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-2xl font-semibold text-gray-900 mb-2">
                   {card.title}
                 </h3>
-                <p className="text-gray-600">{card.description}</p>
+                <p className="text-gray-600 text-sm">{card.description}</p>
               </CardContent>
             </Card>
           </div>

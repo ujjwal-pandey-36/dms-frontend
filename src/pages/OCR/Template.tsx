@@ -1,40 +1,67 @@
 import { Select } from "@/components/ui/Select";
 import { Text } from "@chakra-ui/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { documents, Rect } from "./Unrecorded";
 
 export const TemplateOCR = () => {
   const [templateName, setTemplateName] = useState("");
   const [headerName, setHeaderName] = useState("");
   const [fieldName, setFieldName] = useState("");
-  const [selectedPDF, setSelectedPDF] = useState<File | null>();
+  const [selectedPDF, setSelectedPDF] = useState<string | null>();
+  const [selectionArea, setSelectionArea] = useState<Rect | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
+    null
+  );
   const [formData, setFormData] = useState({
     department: "",
     subdepartment: "",
     template: "",
   });
+  const imgRef = useRef<HTMLImageElement>(null);
   const fields = [
     { name: "Registry", x: 398, y: 108, width: 180, height: 26 },
     { name: "Full Name", x: 72, y: 147, width: 504, height: 17 },
     { name: "Sex", x: 72, y: 177, width: 136, height: 13 },
     { name: "Header", x: 173, y: 68, width: 286, height: 22 },
   ];
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imgRef.current) return;
 
+    const rect = imgRef.current.getBoundingClientRect();
+    setStartPoint({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !startPoint || !imgRef.current) return;
+
+    const rect = imgRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setSelectionArea({
+      x: Math.min(startPoint.x, x),
+      y: Math.min(startPoint.y, y),
+      width: Math.abs(x - startPoint.x),
+      height: Math.abs(y - startPoint.y),
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
   return (
-    <div className="flex flex-col justify-center items-center bg-white rounded-md shadow-lg">
+    <div className="flex flex-col bg-white rounded-md shadow-lg">
       {/* // HEADER  */}
-      <Text
-        fontSize="2xl"
-        fontWeight="bold"
-        color="blue.600"
-        textAlign="center"
-        mb={6}
-        mt={4}
-      >
-        Template Documents
-      </Text>
+      <header className="text-left flex-1 py-4 px-6">
+        <h1 className="text-3xl font-bold text-blue-800">Template Documents</h1>
+        <p className="mt-2 text-gray-600">Manage all template documents here</p>
+      </header>
+
       <div className="flex gap-4 p-4 w-full">
         {/* LEFT PANEL */}
-        <div className="w-1/3 space-y-4">
+        <div className="w-1/3 p-6 space-y-4 border-r bg-white">
           <div>
             <Select
               label="Department"
@@ -109,42 +136,53 @@ export const TemplateOCR = () => {
             </button>
           </div>
 
-          <div>
-            <label className="text-sm font-medium block">Fields</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                className="border px-2 py-1 rounded flex-1"
-                placeholder="Field Name"
-                value={fieldName}
-                onChange={(e) => setFieldName(e.target.value)}
-              />
-              <button className="bg-green-500 text-white px-2 py-1 rounded text-sm">
-                Save Field
-              </button>
-              <button className="bg-red-500 text-white px-2 py-1 rounded text-sm">
-                Delete Field
-              </button>
-            </div>
+          <div className="flex gap-2 w-full items-end ">
+            <Select
+              label="Fields"
+              value={formData.department}
+              onChange={(e) =>
+                setFormData({ ...formData, department: e.target.value })
+              }
+              options={[
+                { value: "registry", label: "Registry" },
+                { value: "fullname", label: "Full Name" },
+                { value: "sex", label: "Sex" },
+                { value: "header", label: "Header" },
+              ]}
+            />
+            <button className="bg-blue-500 text-white px-2 py-1 rounded text-sm w-full ">
+              Save Field
+            </button>
+            <button className="bg-red-500 text-white px-2 py-1 rounded text-sm w-full">
+              Delete Field
+            </button>
           </div>
 
-          <div>
-            <label className="text-sm font-medium block">Select PDF</label>
-            <div className="flex gap-2">
-              <input
-                type="file"
-                className="border px-2 py-1 rounded flex-1"
-                onChange={(e) => setSelectedPDF(e.target.files?.[0] || null)}
-              />
-              <button className="bg-gray-600 text-white px-3 py-1 rounded text-sm">
+          <div className="space-y-2">
+            <div className="flex justify-between w-full items-center">
+              <label className="text-sm font-medium block">Select PDF</label>
+              <button className="bg-blue-500 text-white px-3 py-1 rounded text-sm">
                 Upload
               </button>
+            </div>
+            <div className="flex gap-2 flex-col max-h-[200px] overflow-auto">
+              {documents.map((doc, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => setSelectedPDF(doc)}
+                  className={`cursor-pointer text-sm px-2 py-1 rounded hover:bg-blue-100 ${
+                    selectedPDF === doc ? "bg-blue-200" : ""
+                  }`}
+                >
+                  {doc}
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* RIGHT PANEL */}
-        <div className="w-2/3 space-y-4">
+        <div className="w-2/3 p-4 bg-white">
           {/* Coordinates Table */}
           <div className="overflow-auto max-h-40 border rounded">
             <table className="text-sm w-full table-auto border-collapse">
@@ -176,13 +214,37 @@ export const TemplateOCR = () => {
           </div>
 
           {/* Image Display */}
-          <div className="h-[500px] border rounded overflow-hidden">
+
+          {/* <div className="h-[500px] border rounded overflow-hidden"> */}
+          <div
+            className="relative w-full h-[500px] border rounded-md overflow-hidden"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+          >
             <img
+              ref={imgRef}
               src="/sample.png"
               alt="OCR Template"
-              className="object-contain w-full h-full"
+              className="object-contain w-full h-full select-none"
+              draggable={false}
             />
+            {selectionArea && (
+              <div
+                className="absolute border-2 border-blue-500 bg-blue-200 bg-opacity-20"
+                style={{
+                  left: selectionArea.x,
+                  top: selectionArea.y,
+                  width: selectionArea.width,
+                  height: selectionArea.height,
+                }}
+              />
+            )}
+            <div className="absolute bottom-2 left-2 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+              Drag to select OCR area
+            </div>
           </div>
+          {/* </div> */}
         </div>
       </div>
     </div>

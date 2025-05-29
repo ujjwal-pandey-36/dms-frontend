@@ -49,21 +49,21 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document, onClick }) => {
 
   return (
     <div
-      className="card transition-transform hover:shadow-md hover:scale-[1.02] cursor-pointer overflow-hidden h-full flex flex-col rounded-lg border border-gray-200"
+      className="card transition-transform hover:shadow-md hover:scale-[1.02] cursor-pointer overflow-hidden h-full flex flex-col rounded-xl border border-gray-200 shadow-lg"
       onClick={onClick}
     >
-      <div className="p-4 flex-grow">
-        <div className="flex items-start justify-between">
-          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mb-3">
+      <div className="p-4 flex-grow splace-y-4">
+        <div className="flex items-center justify-between ">
+          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
             <FileText className="h-5 w-5 text-blue-600" />
           </div>
           <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass()}`}
+            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusClass()}`}
           >
             {getStatusText()}
           </span>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-1 line-clamp-2">
+        <h3 className="text-lg font-medium text-gray-900 mt-3 mb-1 line-clamp-2">
           {document.title}
         </h3>
         <p className="text-sm text-gray-500 mb-3">
@@ -74,10 +74,15 @@ const DocumentCard: React.FC<DocumentCardProps> = ({ document, onClick }) => {
         </p>
       </div>
 
-      <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 text-xs text-gray-500 flex items-center justify-between">
+      <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 flex items-center justify-between">
         <div className="flex items-center gap-1">
           <Clock className="h-3 w-3" />
-          <span>{document.lastModifiedAt}</span>
+          <span>
+            {" "}
+            {document.lastModifiedAt
+              ? new Date(document.lastModifiedAt).toLocaleString()
+              : "—"}
+          </span>
         </div>
         <div className="flex items-center gap-1">
           {getStatusIcon()}

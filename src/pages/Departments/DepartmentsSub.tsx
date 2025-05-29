@@ -87,12 +87,12 @@ export const DepartmentsSub: React.FC = () => {
   };
 
   return (
-    <div className="py-6">
+    <div className="flex flex-col bg-white rounded-md shadow-lg animate-fade-in p-6">
       <header className="mb-8 flex flex-wrap justify-between items-center gap-4 sm:flex-nowrap sm:gap-2">
         <div className="text-left flex-1">
-          <h1 className="text-3xl font-bold text-blue-800">Sub-Departments</h1>
+          <h1 className="text-3xl font-bold text-blue-800">Sub-Department</h1>
           <p className="mt-2 text-gray-600">
-            Manage sub-departments in the system
+            Manage sub-department in the system
           </p>
         </div>
         <div className="w-full sm:w-auto">
@@ -110,20 +110,20 @@ export const DepartmentsSub: React.FC = () => {
         </div>
       </header>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-4">
-          <CardTitle>Sub-Departments</CardTitle>
+      <div className="space-y-4">
+        <div className="flex flex-row items-center justify-between flex-wrap gap-4">
+          <h2>Sub-Department</h2>
           <div className="w-full sm:w-64">
             <Input
-              placeholder="Search sub-departments..."
+              placeholder="Search sub-department..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
               icon={<Search className="h-4 w-4 text-gray-400" />}
             />
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div>
           {(isCreating || isEditing) && (
             <div className="mb-6 p-4 border rounded-md">
               <h3 className="text-lg font-medium mb-4">
@@ -227,15 +227,15 @@ export const DepartmentsSub: React.FC = () => {
                       colSpan={3}
                       className="px-6 py-4 text-center text-sm text-gray-500"
                     >
-                      No sub-departments found
+                      No sub-department found
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       <PaginationControls
         currentPage={currentPage}
         totalItems={filteredDepartments.length}
