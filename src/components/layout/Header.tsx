@@ -49,7 +49,7 @@ const Header: React.FC = () => {
     <header className="bg-white border-b border-gray-200 z-10">
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center flex-1">
-          <form onSubmit={handleSearch} className="max-w-lg w-full lg:max-w-xs">
+          {/* <form onSubmit={handleSearch} className="max-w-lg w-full lg:max-w-xs">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
@@ -62,10 +62,10 @@ const Header: React.FC = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-          </form>
+          </form> */}
         </div>
 
-        <div className="ml-4 flex items-center md:ml-6">
+        <div className="ml-4 flex items-center md:ml-6 gap-2">
           {/* Notification dropdown */}
           <div className="relative" ref={notificationRef}>
             <button
