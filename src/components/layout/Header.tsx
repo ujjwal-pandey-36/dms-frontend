@@ -81,14 +81,14 @@ const Header: React.FC = () => {
               <span className="sr-only">View notifications</span>
               <Bell className="h-6 w-6" />
               {unreadNotifications > 0 && (
-                <span className="absolute -top-0 -right-1 bg-red-500 rounded-full h-4 w-4 flex items-center justify-center text-xs text-white">
+                <span className="absolute -top-1 -right-1 bg-red-500 rounded-full h-4 w-4 flex items-center justify-center text-xs text-white">
                   {unreadNotifications}
                 </span>
               )}
             </button>
 
             {isNotificationOpen && (
-              <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 animate-fade-in">
+              <div className="origin-top-right absolute right-0 mt-2 w-72 sm:w-80 max-w-[90vw] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 animate-fade-in z-50">
                 <div
                   className="py-1"
                   role="menu"
@@ -102,7 +102,7 @@ const Header: React.FC = () => {
                   </div>
 
                   {notifications.length > 0 ? (
-                    <div className="max-h-96 overflow-y-auto">
+                    <div className="max-h-80 overflow-y-auto">
                       {notifications.map((notification) => (
                         <div
                           key={notification.id}
