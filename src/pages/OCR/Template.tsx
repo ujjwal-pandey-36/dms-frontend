@@ -107,23 +107,25 @@ export const TemplateOCR = () => {
             />
             <input
               type="text"
-              className="mt-1 border w-full px-2 py-1 rounded"
+              className="mt-3 border w-full px-2 py-1 rounded"
               placeholder="Template Name"
               value={formData.template}
               onChange={(e) => setTemplateName(e.target.value)}
             />
-            <div className="flex gap-2 mt-1">
-              <button className="bg-blue-500 text-white px-2 py-1 rounded text-sm flex-1">
+            <div className="flex gap-2 my-3">
+              <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded text-sm flex-1">
                 Add Template
               </button>
-              <button className="bg-red-500 text-white px-2 py-1 rounded text-sm flex-1">
+              <button className="bg-red-500 hover:bg-red-600 text-white p-2 rounded text-sm flex-1">
                 Delete Template
               </button>
             </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium block">Header</label>
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-gray-700 ">
+              Header
+            </label>
             <input
               type="text"
               className="border w-full px-2 py-1 rounded"
@@ -131,7 +133,7 @@ export const TemplateOCR = () => {
               value={headerName}
               onChange={(e) => setHeaderName(e.target.value)}
             />
-            <button className="bg-gray-700 text-white px-2 py-1 rounded text-sm mt-1 w-full">
+            <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded text-sm mt-1 w-full">
               Save Header Tag
             </button>
           </div>
@@ -150,18 +152,20 @@ export const TemplateOCR = () => {
                 { value: "header", label: "Header" },
               ]}
             />
-            <button className="bg-blue-500 text-white px-2 py-1 rounded text-sm w-full ">
+            <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded text-sm w-full ">
               Save Field
             </button>
-            <button className="bg-red-500 text-white px-2 py-1 rounded text-sm w-full">
+            <button className="bg-red-500 hover:bg-red-600 text-white p-2 rounded text-sm w-full">
               Delete Field
             </button>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3 mt-6">
             <div className="flex justify-between w-full items-center">
-              <label className="text-sm font-medium block">Select PDF</label>
-              <button className="bg-blue-500 text-white px-3 py-1 rounded text-sm">
+              <label className="block text-sm font-medium text-gray-700">
+                Select PDF
+              </label>
+              <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 px-4 rounded text-sm">
                 Upload
               </button>
             </div>
@@ -182,7 +186,7 @@ export const TemplateOCR = () => {
         </div>
 
         {/* RIGHT PANEL */}
-        <div className="w-full lg:w-1/2 p-2 sm:p-4 bg-white">
+        <div className="w-full lg:w-1/2 p-2 sm:p-4 bg-white space-y-6">
           {/* Coordinates Table */}
           <div className="overflow-auto max-h-40 border rounded">
             <table className="text-sm w-full table-auto border-collapse">
@@ -217,7 +221,7 @@ export const TemplateOCR = () => {
 
           {/* <div className="h-[500px] border rounded overflow-hidden"> */}
           <div
-            className="relative w-full h-[500px] border rounded-md overflow-hidden"
+            className="relative w-full h-[600px] border rounded-md overflow-hidden"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}

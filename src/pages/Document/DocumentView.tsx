@@ -140,7 +140,7 @@ const DocumentView: React.FC = () => {
     switch (activeTab) {
       case "document":
         return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-6">
             {isEditing ? (
               <div className="mb-4">
                 <textarea
@@ -177,8 +177,11 @@ const DocumentView: React.FC = () => {
                     </h1>
                     <div className="text-sm text-gray-500 flex items-center gap-1">
                       <Clock size={14} />
-                      Last modified: {document.lastModifiedAt} by{" "}
-                      {document.lastModifiedBy}
+                      Last modified:{" "}
+                      {document.lastModifiedAt
+                        ? new Date(document.lastModifiedAt).toLocaleString()
+                        : "—"}{" "}
+                      by {document.lastModifiedBy}
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -266,32 +269,38 @@ const DocumentView: React.FC = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row flex-wrap sm:items-center sm:justify-between">
+        <div className="flex items-center flex-1 w-full">
           <button
             onClick={() => navigate("/dashboard")}
-            className="mr-4 p-1 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            className="mr-2 p-1 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100"
           >
             <ChevronLeft size={20} />
           </button>
-          <h1 className="text-xl  sm:text-2xl font-semibold text-gray-900">
+          <h1 className="text-2xl font-semibold text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
             {document.title}
           </h1>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button className="btn flex items-center gap-2" variant="outline">
+        {/* <div className="flex flex-wrap gap-2">
+          <Button
+            className="btn flex items-center gap-2 w-full sm:w-auto"
+            variant="outline"
+          >
             <Share2 size={16} />
-            <span className="hidden sm:inline">Share</span>
+            <span className="inline">Share</span>
           </Button>
-          <Button className="btn flex items-center gap-2" variant="outline">
+          <Button
+            className="btn flex items-center gap-2 w-full sm:w-auto"
+            variant="outline"
+          >
             <Download size={16} />
-            <span className="hidden sm:inline">Download</span>
+            <span className="inline">Download</span>
           </Button>
-        </div>
+        </div> */}
       </div>
 
-      <div className="mb-6 border-b border-gray-200 overflow-x-auto overflow-y-hidden scrollbar-hide">
+      <div className="mb-6 border-b border-gray-200 overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 pb-2">
         <nav className="flex flex-nowrap -mb-px">
           {tabs.map((tab) => (
             <button

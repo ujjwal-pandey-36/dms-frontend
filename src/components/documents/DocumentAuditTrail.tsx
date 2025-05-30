@@ -129,7 +129,7 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
             </div>
             <input
               type="text"
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               placeholder="Search audit trail..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -147,52 +147,52 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
         </div>
 
         {showFilters && (
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in">
-            <div>
-              <label
-                htmlFor="user-filter"
-                className="block text-xs font-medium text-gray-700 mb-1"
-              >
-                User
-              </label>
-              <select
-                id="user-filter"
-                className="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
-                value={selectedUser || ""}
-                onChange={(e) => setSelectedUser(e.target.value || null)}
-              >
-                <option value="">All Users</option>
-                {uniqueUsers.map((userId, index) => (
-                  <option key={userId} value={userId}>
-                    {uniqueUserNames[index]}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="space-y-4">
+            <div className="mt-4 grid grid-cols-1  md:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+              <div>
+                <label
+                  htmlFor="user-filter"
+                  className="block text-xs font-medium text-gray-700 mb-1"
+                >
+                  User
+                </label>
+                <select
+                  id="user-filter"
+                  className="block w-full pl-3 pr-2 py-2 text-sm border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
+                  value={selectedUser || ""}
+                  onChange={(e) => setSelectedUser(e.target.value || null)}
+                >
+                  <option value="">All Users</option>
+                  {uniqueUsers.map((userId, index) => (
+                    <option key={userId} value={userId}>
+                      {uniqueUserNames[index]}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div>
-              <label
-                htmlFor="action-filter"
-                className="block text-xs font-medium text-gray-700 mb-1"
-              >
-                Action Type
-              </label>
-              <select
-                id="action-filter"
-                className="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
-                value={selectedAction || ""}
-                onChange={(e) => setSelectedAction(e.target.value || null)}
-              >
-                <option value="">All Actions</option>
-                {uniqueActions.map((action) => (
-                  <option key={action} value={action}>
-                    {action.charAt(0).toUpperCase() + action.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div>
+                <label
+                  htmlFor="action-filter"
+                  className="block text-xs font-medium text-gray-700 mb-1"
+                >
+                  Action Type
+                </label>
+                <select
+                  id="action-filter"
+                  className="block w-full pl-3 pr-2 py-2 text-sm border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
+                  value={selectedAction || ""}
+                  onChange={(e) => setSelectedAction(e.target.value || null)}
+                >
+                  <option value="">All Actions</option>
+                  {uniqueActions.map((action) => (
+                    <option key={action} value={action}>
+                      {action.charAt(0).toUpperCase() + action.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="grid grid-cols-2 gap-2">
               <div>
                 <label
                   htmlFor="date-from"
@@ -228,9 +228,10 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
                   }
                 />
               </div>
+              {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              </div> */}
             </div>
-
-            <div className="md:col-span-3 flex justify-end">
+            <div className=" flex justify-end">
               <Button
                 onClick={handleClearFilters}
                 className="text-sm text-blue-600 hover:text-blue-800"

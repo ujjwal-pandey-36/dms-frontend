@@ -23,13 +23,13 @@ const DepartmentFiles: React.FC = () => {
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {Object.entries(documentsByDepartment).map(([department, docs]) => (
-          <div key={department} className="mb-8 w-full">
+          <div key={department} className="w-full">
             <h2 className="text-xl font-medium text-gray-900 mb-4">
               {department}
             </h2>
             <div className="flex flex-wrap gap-4">
               {docs.map((document) => (
-                <div key={document.id} className="w-full ">
+                <div key={document.id} className="w-full h-full">
                   <DocumentCard
                     document={document}
                     onClick={() => navigate(`/documents/${document.id}`)}
