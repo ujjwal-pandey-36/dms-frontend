@@ -191,7 +191,7 @@ export const AllocationPanel = () => {
 
       {/* Add User Form */}
       {showAddUser && (
-        <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-md">
+        <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-md sm:flex-nowrap flex-wrap">
           <select
             value={newUsername}
             onChange={(e) => setNewUsername(e.target.value)}
@@ -206,15 +206,16 @@ export const AllocationPanel = () => {
                 </option>
               ))}
           </select>
+
           <button
             onClick={addUser}
-            className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700"
+            className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700 sm:w-auto w-full"
           >
             Add
           </button>
           <button
             onClick={() => setShowAddUser(false)}
-            className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 text-sm hover:bg-gray-300"
+            className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 text-sm hover:bg-gray-300  sm:w-auto w-full"
           >
             Cancel
           </button>
