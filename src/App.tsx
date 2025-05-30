@@ -2,7 +2,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
+  // Navigate,
 } from "react-router-dom";
 import { UserProvider } from "./contexts/UserContext";
 import { DocumentProvider } from "./contexts/DocumentContext";
@@ -29,7 +29,7 @@ import { UsersPage } from "./pages/Users/UsersPage";
 import UserAccessPage from "./pages/Users/UsersAccessPage";
 import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
-import RedirectHandler from "./components/layout/RedirectHandler";
+// import RedirectHandler from "./components/layout/RedirectHandler";
 import { AllocationPanel } from "./pages/Digitalization/Allocation";
 import { BatchUploadPanel } from "./pages/Digitalization/BatchUpload";
 import { DepartmentsMain } from "./pages/Departments/DepartmentsMain";
@@ -55,9 +55,6 @@ function App() {
                   {/* Home Page should not use layout */}
                   <Route path="/home" element={<HomePage />} />
 
-                  {/* Redirect root to /home after login */}
-                  {/* <Route path="/" element={<Navigate to="/home" replace />} />s */}
-
                   {/* All other routes wrapped in layout */}
                   <Route element={<Layout />}>
                     {/* // in testing phase ------->>> ocr  */}
@@ -81,7 +78,6 @@ function App() {
                       element={<ChangePassword />}
                     />
                     {/* ----------------------Document && Document Types-------------------- */}
-                    {/* <Route path="/documents" element={<DocumentTypesPage />} /> */}
                     <Route
                       path="/documents/document-types"
                       element={<DocumentTypesPage />}
