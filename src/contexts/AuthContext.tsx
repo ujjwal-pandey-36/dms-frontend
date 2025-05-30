@@ -1,4 +1,4 @@
-import { UserAccess } from "@/types/User";
+import { User } from "@/types/User";
 import {
   createContext,
   useContext,
@@ -6,11 +6,13 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import toast from "react-hot-toast";
 
 interface AuthContextType {
-  user: UserAccess | null;
+  user: User | null;
+  users: User[];
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => User | null;
   logout: () => void;
   error: string | null;
 }
@@ -21,8 +23,45 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Mock users data
+const mockUsers: User[] = [
+  {
+    id: "user-1",
+    name: "Test",
+    email: "test@sofueled.com",
+    role: "Admin",
+    password: "test123",
+    avatar: "",
+  },
+  {
+    id: "user-2",
+    name: "Jane Smith",
+    email: "jane@example.com",
+    role: "Manager",
+    password: "password2",
+    avatar: "",
+  },
+  {
+    id: "user-3",
+    name: "Robert Johnson",
+    email: "robert@example.com",
+    role: "Editor",
+    password: "password3",
+    avatar: "",
+  },
+  {
+    id: "user-4",
+    name: "Emily Wilson",
+    email: "emily@example.com",
+    role: "Viewer",
+    password: "password4",
+    avatar: "",
+  },
+];
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<UserAccess | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [users] = useState<User[]>(mockUsers);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +73,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (token && storedUser) {
         try {
-          const userData = JSON.parse(storedUser);
+          const userData = JSON.parse(storedUser) as User;
           setUser(userData);
           setIsAuthenticated(true);
         } catch (err) {
@@ -53,34 +92,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => window.removeEventListener("storage", checkAuth);
   }, []);
 
-  const login = async (username: string, password: string) => {
+  const login = (email: string, password: string) => {
     try {
       setError(null);
 
-      // This is a mock authentication
-      if (username === "admin" && password === "password") {
-        const userData: UserAccess = {
-          id: "1",
-          username,
-          accessId: "admin",
-        };
+      // Find user in mock data
+      const foundUser = users.find(
+        (u) => u.email === email && u.password === password
+      );
 
-        // Generate a mock token
-        const token = btoa(`${username}:${Date.now()}`);
+      if (foundUser) {
+        // Generate a simple token (in a real app, this would come from your API)
+        const token = btoa(`${email}:${Date.now()}`);
 
         // Store both token and user data
         localStorage.setItem("auth_token", token);
-        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("user", JSON.stringify(foundUser));
 
-        setUser(userData);
+        setUser(foundUser);
         setIsAuthenticated(true);
+        toast.success(`Welcome back, ${foundUser.name}!`);
+        return foundUser;
       } else {
-        throw new Error("Invalid username or password");
+        return null;
+        throw new Error("Invalid email or password");
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
+      const errorMessage = err instanceof Error ? err.message : "Login failed";
+      setError(errorMessage);
+      toast.error(errorMessage);
       throw err;
     }
   };
@@ -90,11 +130,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.removeItem("user");
     setUser(null);
     setIsAuthenticated(false);
+    toast.success("Logged out successfully");
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, login, logout, error }}
+      value={{ user, users, isAuthenticated, login, logout, error }}
     >
       {children}
     </AuthContext.Provider>

@@ -51,87 +51,93 @@ function App() {
                 {/* Public routes */}
                 <Route path="/login" element={<Login />} />
                 {/* Protected routes start here */}
-                {/* <Route element={<ProtectedRoute />}> */}
-                {/* Home Page should not use layout */}
-                <Route path="/home" element={<HomePage />} />
+                <Route element={<ProtectedRoute />}>
+                  {/* Home Page should not use layout */}
+                  <Route path="/home" element={<HomePage />} />
 
-                {/* Redirect root to /home after login */}
-                {/* <Route path="/" element={<Navigate to="/home" replace />} />s */}
+                  {/* Redirect root to /home after login */}
+                  {/* <Route path="/" element={<Navigate to="/home" replace />} />s */}
 
-                {/* All other routes wrapped in layout */}
-                <Route element={<Layout />}>
-                  {/* // in testing phase ------->>> ocr  */}
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/my-documents" element={<MyDocuments />} />
-                  <Route
-                    path="/pending-approvals"
-                    element={<PendingApprovals />}
-                  />
-                  <Route path="/activity" element={<RecentActivity />} />
-                  <Route path="/department" element={<DepartmentFiles />} />
-                  <Route path="/team" element={<Team />} />
-                  <Route
-                    path="/documents/:documentId"
-                    element={<DocumentView />}
-                  />
-                  {/* -------------------Settings---------------------- */}
-                  <Route path="/settings" element={<Settings />} />
-                  <Route
-                    path="/settings/change-password"
-                    element={<ChangePassword />}
-                  />
-                  {/* ----------------------Document && Document Types-------------------- */}
-                  {/* <Route path="/documents" element={<DocumentTypesPage />} /> */}
-                  <Route
-                    path="/documents/document-types"
-                    element={<DocumentTypesPage />}
-                  />
-                  <Route
-                    path="/documents/upload"
-                    element={<DocumentUpload />}
-                  />
-                  {/* ----------------------OCR check-------------------- */}
-                  <Route path="/ocr/unrecorded" element={<UnrecordedOCR />} />
-                  <Route
-                    path="/ocr/handwritten"
-                    element={<HandWrittenOCRUploader />}
-                  />
-                  <Route path="/ocr/template" element={<TemplateOCR />} />
-                  {/* //------------------ departments------------------ */}
-                  <Route
-                    path="/departments/main"
-                    element={<DepartmentsMain />}
-                  />
-                  <Route path="/departments/sub" element={<DepartmentsSub />} />
-                  {/* -----------USERS------------- */}
-                  <Route path="/users/members" element={<UsersPage />} />
-                  <Route path="/users/access" element={<UserAccessPage />} />
-                  {/* ---------------LOCATIONS--------------- */}
-                  <Route path="/locations/regions" element={<RegionsPage />} />
-                  <Route
-                    path="/locations/municipalities"
-                    element={<MunicipalitiesPage />}
-                  />
-                  <Route
-                    path="/locations/barangays"
-                    element={<BarangaysPage />}
-                  />
-                  {/* ------------------DIGITALIZATION----------------- */}
-                  <Route
-                    path="/digitalization/allocation"
-                    element={<AllocationPanel />}
-                  />
-                  <Route
-                    path="/digitalization/batch-upload"
-                    element={<BatchUploadPanel />}
-                  />
-                  {/* ------------------LGU MAINTENANCE----------------- */}
-                  <Route path="/lgu" element={<LGUMaintenancePage />} />
-                  {/* ---------------ACCOUNTING && RPT--------------- */}
-                  <Route path="/accounting" element={<AccountingPage />} />
-                  <Route path="/rpt" element={<RPTPage />} />
+                  {/* All other routes wrapped in layout */}
+                  <Route element={<Layout />}>
+                    {/* // in testing phase ------->>> ocr  */}
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/my-documents" element={<MyDocuments />} />
+                    <Route
+                      path="/pending-approvals"
+                      element={<PendingApprovals />}
+                    />
+                    <Route path="/activity" element={<RecentActivity />} />
+                    <Route path="/department" element={<DepartmentFiles />} />
+                    <Route path="/team" element={<Team />} />
+                    <Route
+                      path="/documents/:documentId"
+                      element={<DocumentView />}
+                    />
+                    {/* -------------------Settings---------------------- */}
+                    <Route path="/settings" element={<Settings />} />
+                    <Route
+                      path="/settings/change-password"
+                      element={<ChangePassword />}
+                    />
+                    {/* ----------------------Document && Document Types-------------------- */}
+                    {/* <Route path="/documents" element={<DocumentTypesPage />} /> */}
+                    <Route
+                      path="/documents/document-types"
+                      element={<DocumentTypesPage />}
+                    />
+                    <Route
+                      path="/documents/upload"
+                      element={<DocumentUpload />}
+                    />
+                    {/* ----------------------OCR check-------------------- */}
+                    <Route path="/ocr/unrecorded" element={<UnrecordedOCR />} />
+                    <Route
+                      path="/ocr/handwritten"
+                      element={<HandWrittenOCRUploader />}
+                    />
+                    <Route path="/ocr/template" element={<TemplateOCR />} />
+                    {/* //------------------ departments------------------ */}
+                    <Route
+                      path="/departments/main"
+                      element={<DepartmentsMain />}
+                    />
+                    <Route
+                      path="/departments/sub"
+                      element={<DepartmentsSub />}
+                    />
+                    {/* -----------USERS------------- */}
+                    <Route path="/users/members" element={<UsersPage />} />
+                    <Route path="/users/access" element={<UserAccessPage />} />
+                    {/* ---------------LOCATIONS--------------- */}
+                    <Route
+                      path="/locations/regions"
+                      element={<RegionsPage />}
+                    />
+                    <Route
+                      path="/locations/municipalities"
+                      element={<MunicipalitiesPage />}
+                    />
+                    <Route
+                      path="/locations/barangays"
+                      element={<BarangaysPage />}
+                    />
+                    {/* ------------------DIGITALIZATION----------------- */}
+                    <Route
+                      path="/digitalization/allocation"
+                      element={<AllocationPanel />}
+                    />
+                    <Route
+                      path="/digitalization/batch-upload"
+                      element={<BatchUploadPanel />}
+                    />
+                    {/* ------------------LGU MAINTENANCE----------------- */}
+                    <Route path="/lgu" element={<LGUMaintenancePage />} />
+                    {/* ---------------ACCOUNTING && RPT--------------- */}
+                    <Route path="/accounting" element={<AccountingPage />} />
+                    <Route path="/rpt" element={<RPTPage />} />
+                  </Route>
                 </Route>
-                {/* </Route> */}
 
                 {/* Fallback */}
                 <Route path="*" element={<Login />} />

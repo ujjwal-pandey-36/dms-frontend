@@ -3,9 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 import { useNotification } from "../../contexts/NotificationContext";
 import { Bell, Search, UserCircle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header: React.FC = () => {
   const { user } = useUser();
+  const { logout } = useAuth();
   const { notifications } = useNotification();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,6 +26,7 @@ const Header: React.FC = () => {
 
   const handleLogout = () => {
     // Handle logout logic
+    logout();
     navigate("/login");
   };
   // Close dropdowns when clicking outside

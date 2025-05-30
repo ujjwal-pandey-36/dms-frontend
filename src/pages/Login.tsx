@@ -4,12 +4,14 @@ import { useUser } from "../contexts/UserContext";
 import { FileText } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { Eye, EyeOff } from "lucide-react"; // Import eye icons
+import { useAuth } from "@/contexts/AuthContext";
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useUser();
+  // const { login } = useUser();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,7 +30,7 @@ const Login: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Attempt login
-      const user = login({ email, password });
+      const user = login(email, password);
 
       if (user) {
         toast.success("Login successful!");
