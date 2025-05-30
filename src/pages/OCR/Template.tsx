@@ -54,14 +54,14 @@ export const TemplateOCR = () => {
   return (
     <div className="flex flex-col bg-white rounded-md shadow-lg">
       {/* // HEADER  */}
-      <header className="text-left flex-1 py-4 px-6">
+      <header className="text-left flex-1 py-4 px-3 sm:px-6">
         <h1 className="text-3xl font-bold text-blue-800">Template Documents</h1>
         <p className="mt-2 text-gray-600">Manage all template documents here</p>
       </header>
 
-      <div className="flex gap-4 p-4 w-full">
+      <div className="flex gap-4 p-2 sm:p-4 w-full max-lg:flex-col">
         {/* LEFT PANEL */}
-        <div className="w-1/3 p-6 space-y-4 border-r bg-white">
+        <div className="w-full lg:w-1/2 p-2 sm:p-6 space-y-4 border-r bg-white">
           <div>
             <Select
               label="Department"
@@ -182,7 +182,7 @@ export const TemplateOCR = () => {
         </div>
 
         {/* RIGHT PANEL */}
-        <div className="w-2/3 p-4 bg-white">
+        <div className="w-full lg:w-1/2 p-2 sm:p-4 bg-white">
           {/* Coordinates Table */}
           <div className="overflow-auto max-h-40 border rounded">
             <table className="text-sm w-full table-auto border-collapse">

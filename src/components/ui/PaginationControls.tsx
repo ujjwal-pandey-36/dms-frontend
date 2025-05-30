@@ -32,9 +32,12 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
   };
 
   return (
-    <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
-      <div className="flex items-center space-x-2">
-        <span className="text-sm text-gray-700">Rows Per Page :</span>
+    <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+      {/* Rows per page selector - stays on top on mobile */}
+      <div className="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-start">
+        <span className="text-sm text-gray-700 whitespace-nowrap">
+          Rows Per Page:
+        </span>
         <select
           value={itemsPerPage}
           onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
@@ -48,7 +51,8 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
         </select>
       </div>
 
-      <div className="flex items-center space-x-2">
+      {/* Pagination controls - becomes compact on mobile */}
+      <div className="flex items-center space-x-1 w-full sm:w-auto justify-center sm:justify-start">
         <button
           onClick={handlePrev}
           disabled={currentPage === 1}
@@ -57,19 +61,49 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
           <ChevronLeft className="w-4 h-4" />
         </button>
 
-        {pageNumbers.map((num) => (
-          <button
-            key={num}
-            onClick={() => onPageChange(num)}
-            className={`px-3 py-1 rounded-md border text-sm ${
-              num === currentPage
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-white text-blue-600 border-blue-200 hover:bg-blue-100"
-            }`}
-          >
-            {num}
-          </button>
-        ))}
+        {/* Show limited page numbers on mobile */}
+        {window.innerWidth < 640 ? (
+          <>
+            {currentPage > 2 && <span className="px-2 text-blue-600">...</span>}
+            {currentPage > 1 && (
+              <button
+                onClick={() => onPageChange(currentPage - 1)}
+                className="px-3 py-1 rounded-md border text-sm bg-white text-blue-600 border-blue-200 hover:bg-blue-100"
+              >
+                {currentPage - 1}
+              </button>
+            )}
+            <button className="px-3 py-1 rounded-md border text-sm bg-blue-600 text-white border-blue-600">
+              {currentPage}
+            </button>
+            {currentPage < totalPages && (
+              <button
+                onClick={() => onPageChange(currentPage + 1)}
+                className="px-3 py-1 rounded-md border text-sm bg-white text-blue-600 border-blue-200 hover:bg-blue-100"
+              >
+                {currentPage + 1}
+              </button>
+            )}
+            {currentPage < totalPages - 1 && (
+              <span className="px-2 text-blue-600">...</span>
+            )}
+          </>
+        ) : (
+          // Show all page numbers on desktop
+          pageNumbers.map((num) => (
+            <button
+              key={num}
+              onClick={() => onPageChange(num)}
+              className={`px-3 py-1 rounded-md border text-sm ${
+                num === currentPage
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-blue-600 border-blue-200 hover:bg-blue-100"
+              }`}
+            >
+              {num}
+            </button>
+          ))
+        )}
 
         <button
           onClick={handleNext}

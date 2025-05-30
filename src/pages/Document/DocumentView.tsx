@@ -167,12 +167,12 @@ const DocumentView: React.FC = () => {
               </div>
             ) : (
               <div className="prose max-w-none">
-                <div className="mb-6 flex justify-between items-center">
+                <div className="mb-6 flex justify-between items-center gap-2 flex-wrap">
                   <div>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-2">
                       v{document.versions.length + 1}
                     </span>
-                    <h1 className="text-2xl font-bold mb-1">
+                    <h1 className="text-xl sm:text-2xl font-bold mb-1">
                       {document.title}
                     </h1>
                     <div className="text-sm text-gray-500 flex items-center gap-1">
@@ -266,7 +266,7 @@ const DocumentView: React.FC = () => {
 
   return (
     <div className="animate-fade-in">
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center">
           <button
             onClick={() => navigate("/dashboard")}
@@ -274,12 +274,12 @@ const DocumentView: React.FC = () => {
           >
             <ChevronLeft size={20} />
           </button>
-          <h1 className="text-2xl font-semibold text-gray-900">
+          <h1 className="text-xl  sm:text-2xl font-semibold text-gray-900">
             {document.title}
           </h1>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap gap-2">
           <Button className="btn flex items-center gap-2" variant="outline">
             <Share2 size={16} />
             <span className="hidden sm:inline">Share</span>
@@ -291,13 +291,13 @@ const DocumentView: React.FC = () => {
         </div>
       </div>
 
-      <div className="mb-6 border-b border-gray-200">
-        <nav className="flex -mb-px">
+      <div className="mb-6 border-b border-gray-200 overflow-x-auto overflow-y-hidden scrollbar-hide">
+        <nav className="flex flex-nowrap -mb-px">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TabType)}
-              className={`flex items-center py-4 px-6 border-b-2 font-medium text-sm whitespace-nowrap ${
+              className={`flex items-center py-3 px-4 sm:px-6 border-b-2 font-medium text-sm whitespace-nowrap ${
                 activeTab === tab.id
                   ? "border-blue-500 text-blue-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"

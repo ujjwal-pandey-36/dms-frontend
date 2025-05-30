@@ -42,3 +42,14 @@
   scrollbar-width: thin; /* 'auto' or 'thin' */
   scrollbar-color: white transparent; /* thumb color track color */
 }
+#sidebar {
+  transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+#sidebar:not(.mobile-open) {
+  transform: translateX(-100%);
+}
+@media (min-width: 768px) {
+  #sidebar {
+    transform: none !important;
+  }
+}

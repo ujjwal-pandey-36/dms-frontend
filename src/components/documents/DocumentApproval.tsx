@@ -262,7 +262,7 @@ const DocumentApproval: React.FC<DocumentApprovalProps> = ({ document }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-3 sm:p-6  border-b border-gray-200">
         <h2 className="text-xl font-medium text-gray-900">Approval Workflow</h2>
         <p className="text-sm text-gray-500 mt-1">
           Track the approval status of this document
@@ -270,10 +270,13 @@ const DocumentApproval: React.FC<DocumentApprovalProps> = ({ document }) => {
       </div>
 
       {/* Document status summary */}
-      <div className="p-6 bg-gray-50 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-700">Current Status</p>
+      <div className="p-3 sm:p-6  bg-gray-50 border-b border-gray-200">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full">
+          {/* Current Status */}
+          <div className="flex flex-row sm:flex-col max-sm:gap-4 justify-between items-center sm:items-start">
+            <h2 className="text-sm font-medium text-gray-700">
+              Current Status
+            </h2>
             <div className="flex items-center mt-1">
               {document.status === "approved" ? (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
@@ -294,12 +297,13 @@ const DocumentApproval: React.FC<DocumentApprovalProps> = ({ document }) => {
             </div>
           </div>
 
-          <div className="text-right">
+          {/* Approval Progress */}
+          <div className="sm:w-full sm:max-w-[15rem]">
             <p className="text-sm font-medium text-gray-700">
               Approval Progress
             </p>
-            <div className="mt-1 flex items-center">
-              <div className="w-40 bg-gray-200 rounded-full h-2.5 mr-2">
+            <div className="mt-1 flex items-center gap-2 w-full">
+              <div className="flex-1 bg-gray-200 rounded-full h-2.5">
                 <div
                   className="bg-blue-600 h-2.5 rounded-full"
                   style={{
@@ -312,7 +316,7 @@ const DocumentApproval: React.FC<DocumentApprovalProps> = ({ document }) => {
                   }}
                 ></div>
               </div>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 whitespace-nowrap">
                 {
                   document.approvalMatrix.filter((step) => step.completed)
                     .length
@@ -341,8 +345,8 @@ const DocumentApproval: React.FC<DocumentApprovalProps> = ({ document }) => {
         </div>
 
         {showApprovalMatrix && (
-          <div className="p-4">
-            <div className="space-y-4">
+          <div className="p-4 overflow-x-auto">
+            <div className="space-y-4 min-w-[400px]">
               {document.approvalMatrix.map((step, stepIndex) => {
                 const stepStatus = getStepStatus(step);
 
@@ -446,7 +450,7 @@ const DocumentApproval: React.FC<DocumentApprovalProps> = ({ document }) => {
 
       {/* Current user's approval actions */}
       {isUserCurrentApprover() && (
-        <div className="p-6 border-t border-gray-200">
+        <div className="p-3 sm:p-6  border-t border-gray-200">
           <h3 className="text-sm font-medium text-gray-900 mb-4">
             Your Approval Action
           </h3>

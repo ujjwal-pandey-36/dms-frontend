@@ -1,5 +1,5 @@
 import { Select } from "@/components/ui/Select";
-import { Text } from "@chakra-ui/react";
+// import { Text } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 interface FormData {
@@ -84,9 +84,9 @@ const OCRUnrecordedUI = () => {
     }
   };
   return (
-    <div className="flex flex-col  bg-white rounded-md shadow-lg">
+    <div className="flex flex-col bg-white rounded-md shadow-lg">
       {/* HEADER */}
-      <header className="text-left flex-1 py-4 px-6">
+      <header className="text-left flex-1 py-4 px-3 sm:px-6">
         <h1 className="text-3xl font-bold text-blue-800">
           Unrecorded Documents
         </h1>
@@ -94,47 +94,49 @@ const OCRUnrecordedUI = () => {
           Manage all unrecorded documents here
         </p>
       </header>
-      <div className="flex gap-4 p-4 w-full">
+      <div className="flex gap-4 p-2 sm:p-4 w-full max-md:flex-col">
         {/* Left Panel */}
-        <div className="w-1/3 p-6 space-y-4 border-r bg-white">
-          <Select
-            label="Department"
-            value={formData.department}
-            onChange={(e) =>
-              setFormData({ ...formData, department: e.target.value })
-            }
-            options={[
-              { value: "finance", label: "Finance" },
-              { value: "payroll", label: "Payroll" },
-              { value: "hr", label: "HR" },
-            ]}
-          />
+        <div className="w-full lg:w-1/2 p-2 sm:p-6 space-y-4 border-r bg-white">
+          <div className="flex gap-4 md:flex-col max-sm:flex-col">
+            <Select
+              label="Department"
+              value={formData.department}
+              onChange={(e) =>
+                setFormData({ ...formData, department: e.target.value })
+              }
+              options={[
+                { value: "finance", label: "Finance" },
+                { value: "payroll", label: "Payroll" },
+                { value: "hr", label: "HR" },
+              ]}
+            />
 
-          <Select
-            label="Sub-Department"
-            value={formData.subdepartment}
-            onChange={(e) =>
-              setFormData({ ...formData, subdepartment: e.target.value })
-            }
-            options={[
-              { value: "payroll", label: "Payroll" },
-              { value: "documents", label: "Documents" },
-              { value: "records", label: "Records" },
-            ]}
-          />
+            <Select
+              label="Sub-Department"
+              value={formData.subdepartment}
+              onChange={(e) =>
+                setFormData({ ...formData, subdepartment: e.target.value })
+              }
+              options={[
+                { value: "payroll", label: "Payroll" },
+                { value: "documents", label: "Documents" },
+                { value: "records", label: "Records" },
+              ]}
+            />
 
-          <Select
-            label="OCR Template"
-            value={formData.template}
-            onChange={(e) =>
-              setFormData({ ...formData, template: e.target.value })
-            }
-            options={[
-              { value: "id", label: "ID Card" },
-              { value: "birth", label: "Birth Certificate" },
-              { value: "passport", label: "Passport" },
-            ]}
-          />
+            <Select
+              label="OCR Template"
+              value={formData.template}
+              onChange={(e) =>
+                setFormData({ ...formData, template: e.target.value })
+              }
+              options={[
+                { value: "id", label: "ID Card" },
+                { value: "birth", label: "Birth Certificate" },
+                { value: "passport", label: "Passport" },
+              ]}
+            />
+          </div>
           {/* NOTE: HARD CODED FOR NOW  */}
           {formData.template === "birth" ? (
             <>
@@ -186,7 +188,7 @@ const OCRUnrecordedUI = () => {
         </div>
 
         {/* Right Panel */}
-        <div className="w-2/3 p-4 flex items-center justify-center relative bg-white">
+        <div className="w-full lg:w-1/2 p-2 sm:p-4 flex items-center justify-center relative bg-white">
           {formData.isLoaded ? (
             <div
               className="relative w-full h-full border rounded-md overflow-hidden"
@@ -220,14 +222,6 @@ const OCRUnrecordedUI = () => {
             <p className="text-gray-400">Select a document to preview</p>
           )}
         </div>
-        {/* {formData.isLoaded && (
-          <button
-            className="bg-blue-600 text-white py-2 px-4 mt-4 rounded hover:bg-blue-700 text-sm"
-            onClick={handleOCR}
-          >
-            OCR
-          </button>
-        )} */}
       </div>
     </div>
   );

@@ -114,9 +114,9 @@ export const AllocationPanel = () => {
   };
 
   return (
-    <div className="bg-white shadow-md rounded-xl p-6 space-y-6">
+    <div className="bg-white shadow-md rounded-xl p-3 md:p-6 space-y-6">
       {/* Header */}
-      <header className="flex justify-between items-center">
+      <header className="flex justify-between items-center gap-2 flex-wrap">
         <div>
           <h1 className="text-3xl font-bold text-blue-800">Allocation</h1>
           <p className="mt-2 text-gray-600">
@@ -169,17 +169,17 @@ export const AllocationPanel = () => {
         </div>
 
         {/* Subdepartment Actions */}
-        <div className="flex justify-end items-center gap-2">
+        <div className="flex justify-end items-center gap-2 flex-wrap">
           <button
             onClick={handleSubDeptAdd}
-            className="flex items-center gap-1 px-4 py-2 rounded-full bg-blue-600 text-white text-sm hover:bg-blue-700"
+            className="flex items-center justify-center gap-1 px-4 py-2 rounded-full bg-blue-600 text-white text-sm hover:bg-blue-700 w-full sm:w-auto"
           >
             <PlusCircle className="w-4 h-4" />
             Add Sub-Department
           </button>
           <button
             onClick={handleSubDeptDelete}
-            className="flex items-center gap-1 px-4 py-2 rounded-full bg-red-100 text-red-700 text-sm hover:bg-red-200"
+            className="flex items-center justify-center gap-1 px-4 py-2 rounded-full bg-red-100 text-red-700 text-sm hover:bg-red-200 w-full sm:w-auto"
           >
             <Trash2 className="w-4 h-4" />
             Delete

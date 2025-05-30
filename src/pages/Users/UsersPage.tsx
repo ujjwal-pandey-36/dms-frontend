@@ -117,7 +117,7 @@ export const UsersPage: React.FC = () => {
 
   return (
     <div className="flex flex-col bg-white rounded-md shadow-lg">
-      <header className="flex justify-between items-center gap-4 pt-4 px-6 ">
+      <header className="flex justify-between items-center gap-4 pt-4 px-6 flex-wrap">
         <div className="text-left flex-1 ">
           <h1 className="text-3xl font-bold text-blue-800">Users</h1>
           <p className="mt-2 text-gray-600">

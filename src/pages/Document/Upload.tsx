@@ -98,18 +98,20 @@ export default function DocumentUpload() {
   );
 
   return (
-    <div className="flex flex-col bg-white rounded-md shadow-lg animate-fade-in p-6 space-y-4">
-      <header className="text-left flex-1">
+    <div className="flex flex-col bg-white rounded-md shadow-lg animate-fade-in p-4 sm:p-6 space-y-6">
+      {/* Header */}
+      <header className="text-left">
         <h1 className="text-3xl font-bold text-blue-800">Upload</h1>
-        <p className="mt-2 text-gray-600">
-          Upload files to the system for easy access and organization.{" "}
+        <p className="mt-1 text-base text-gray-600">
+          Upload files to the system for easy access and organization.
         </p>
       </header>
 
+      {/* Form Section */}
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4 text-black">
-          <div>
-            {/* <label>Department</label> */}
+        <div className="grid sm:grid-cols-2 gap-4 text-black">
+          {/* Department */}
+          <div className="col-span-1">
             <Select
               label="Department"
               value={newDoc.department}
@@ -119,8 +121,9 @@ export default function DocumentUpload() {
               options={dummyDepartments}
             />
           </div>
-          <div>
-            {/* <label>Subdepartment</label> */}
+
+          {/* Sub-Department */}
+          <div className="col-span-1">
             <Select
               label="Sub-Department"
               value={newDoc.subdepartment}
@@ -130,68 +133,85 @@ export default function DocumentUpload() {
               options={dummySubdepartments}
             />
           </div>
-          <div>
-            <label>File Description</label>
+
+          {/* File Description */}
+          <div className="col-span-1">
+            <label className="text-sm sm:text-base">File Description</label>
             <Input
+              className="w-full"
               value={newDoc.fileDescription || ""}
               onChange={(e) =>
                 setNewDoc({ ...newDoc, fileDescription: e.target.value })
               }
             />
           </div>
-          <div>
-            <label>File Date</label>
+
+          {/* File Date */}
+          <div className="col-span-1">
+            <label className="text-sm sm:text-base">File Date</label>
             <Input
               type="date"
+              className="w-full"
               value={newDoc.fileDate}
               onChange={(e) =>
                 setNewDoc({ ...newDoc, fileDate: e.target.value })
               }
             />
           </div>
-          <div>
-            <label>Name</label>
+
+          {/* Name */}
+          <div className="col-span-1">
+            <label className="text-sm sm:text-base">Name</label>
             <Input
+              className="w-full"
               value={newDoc.name || ""}
               onChange={(e) => setNewDoc({ ...newDoc, name: e.target.value })}
             />
           </div>
-          <div>
-            <label>Description</label>
+
+          {/* Description */}
+          <div className="col-span-1">
+            <label className="text-sm sm:text-base">Description</label>
             <Input
+              className="w-full"
               value={newDoc.description || ""}
               onChange={(e) =>
                 setNewDoc({ ...newDoc, description: e.target.value })
               }
             />
           </div>
-          <div>
-            <label>Expiration Date</label>
+
+          {/* Expiration Date */}
+          <div className="col-span-1">
+            <label className="text-sm sm:text-base">Expiration Date</label>
             <Input
               type="date"
+              className="w-full"
               value={newDoc.expirationDate}
               onChange={(e) =>
                 setNewDoc({ ...newDoc, expirationDate: e.target.value })
               }
             />
           </div>
-          <div className="flex items-center gap-2">
+
+          {/* Confidential Checkbox */}
+          <div className="col-span-1 flex items-center gap-2">
             <input
               type="checkbox"
               checked={newDoc.confidential}
-              // onCheckedChange={(val) =>
-              //   setNewDoc({ ...newDoc, confidential: Boolean(val) })
-              // }
               onChange={(e) =>
                 setNewDoc({ ...newDoc, confidential: e.target.checked })
               }
+              className="h-4 w-4"
             />
-            <label>Confidential</label>
+            <label className="text-sm sm:text-base">Confidential</label>
           </div>
-          <div className="col-span-2">
-            <label>Remarks</label>
+
+          {/* Remarks */}
+          <div className="col-span-1 sm:col-span-2">
+            <label className="text-sm sm:text-base">Remarks</label>
             <textarea
-              className="w-full border rounded p-2"
+              className="w-full border rounded p-2 text-sm sm:text-base"
               rows={3}
               value={newDoc.remarks || ""}
               onChange={(e) =>
@@ -199,80 +219,112 @@ export default function DocumentUpload() {
               }
             ></textarea>
           </div>
-          <div>
-            <label>Attachment</label>
-            <Input type="file" onChange={handleAttach} />
+
+          {/* Attachment */}
+          <div className="col-span-1 sm:col-span-2">
+            <label className="text-sm sm:text-base">Attachment</label>
+            <Input
+              type="file"
+              onChange={handleAttach}
+              className="w-full text-sm"
+            />
             {selectedFile && (
-              <p className="text-sm mt-1 text-blue-700">
+              <p className="text-xs sm:text-sm mt-1 text-blue-700 truncate">
                 Attached: {selectedFile.name}
               </p>
             )}
           </div>
         </div>
-        <div className="flex justify-center ">
-          <Button onClick={handleAddOrUpdate} className="w-1/4">
+
+        {/* Submit Button */}
+        <div className="flex justify-center">
+          <Button
+            onClick={handleAddOrUpdate}
+            className="w-full sm:w-2/3 md:w-1/3"
+          >
             {editId ? "Update" : "Add"} Document
           </Button>
         </div>
       </div>
 
+      {/* Document List Section */}
       <div className="space-y-4">
-        <div className="flex justify-between items-center w-full">
-          <h2 className="text-lg font-semibold w-full">Document List</h2>
+        {/* Search and Title */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+          <h2 className="text-lg font-semibold w-full sm:w-auto">
+            Document List
+          </h2>
           <Input
-            className="w-full"
+            className="w-full sm:w-1/2"
             placeholder="Search by Name or Description"
-            icon={<Search />}
+            icon={<Search className="w-4 h-4" />}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+
         {filteredDocs.length === 0 ? (
-          <p className="text-gray-600 text-xl font-semibold text-center">
+          <p className="text-gray-600 text-center py-6 text-base sm:text-lg font-semibold">
             No documents found.
           </p>
         ) : (
-          <table className="w-full text-sm border mt-4">
-            <thead className="bg-blue-100">
-              <tr>
-                <th className="border p-2">File</th>
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Description</th>
-                <th className="border p-2">Expiration</th>
-                <th className="border p-2">Attachment</th>
-                <th className="border p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredDocs.map((doc) => (
-                <tr key={doc.id} className="odd:bg-gray-50 even:bg-white">
-                  <td className="border p-2">{doc.id}</td>
-                  <td className="border p-2">{doc.name}</td>
-                  <td className="border p-2">{doc.description}</td>
-                  <td className="border p-2">{doc.expirationDate || "-"}</td>
-                  <td className="border p-2">{doc.fileName || "-"}</td>
-                  <td className="border p-2 flex gap-2 w-full">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(doc.id)}
-                      className="w-full"
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDelete(doc.id)}
-                      className="w-full"
-                    >
-                      Delete
-                    </Button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[600px] text-sm border mt-4">
+              <thead className="bg-blue-100">
+                <tr>
+                  <th className="border p-2 text-left">File</th>
+                  <th className="border p-2 text-left hidden sm:table-cell">
+                    Name
+                  </th>
+                  <th className="border p-2 text-left hidden md:table-cell">
+                    Description
+                  </th>
+                  <th className="border p-2 text-left">Expiration</th>
+                  <th className="border p-2 text-left hidden sm:table-cell">
+                    Attachment
+                  </th>
+                  <th className="border p-2 text-left">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredDocs.map((doc) => (
+                  <tr key={doc.id} className="odd:bg-gray-50 even:bg-white">
+                    <td className="border p-2">{doc.id}</td>
+                    <td className="border p-2 hidden sm:table-cell">
+                      {doc.name}
+                    </td>
+                    <td className="border p-2 hidden md:table-cell">
+                      {doc.description}
+                    </td>
+                    <td className="border p-2">{doc.expirationDate || "-"}</td>
+                    <td className="border p-2 hidden sm:table-cell">
+                      {doc.fileName || "-"}
+                    </td>
+                    <td className="border p-2">
+                      <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(doc.id)}
+                          className="w-full sm:w-auto"
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleDelete(doc.id)}
+                          className="w-full sm:w-auto"
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
