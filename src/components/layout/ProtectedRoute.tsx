@@ -3,19 +3,8 @@ import React, { useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 export const ProtectedRoute: React.FC = () => {
-  const { isAuthenticated } = useAuth();
-  const location = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  // Store the attempted URL
-  useEffect(() => {
-    if (!isAuthenticated) {
-      sessionStorage.setItem("redirectUrl", location.pathname);
-    }
-  }, [isAuthenticated, location]);
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
-  }
-
-  return <Outlet />;
+  if (isLoading) return null; // or <LoadingSpinner />
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
 };

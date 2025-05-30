@@ -15,6 +15,7 @@ interface AuthContextType {
   login: (email: string, password: string) => User | null;
   logout: () => void;
   error: string | null;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,7 +65,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [users] = useState<User[]>(mockUsers);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
+  const [loading, setLoading] = useState<boolean>(true);
   // Check if user is already logged in
   useEffect(() => {
     const checkAuth = () => {
@@ -84,6 +85,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setIsAuthenticated(false);
         }
       }
+
+      setLoading(false);
     };
 
     checkAuth();
@@ -115,7 +118,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return foundUser;
       } else {
         return null;
-        throw new Error("Invalid email or password");
+        // throw new Error("Invalid email or password");
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Login failed";
@@ -135,7 +138,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, users, isAuthenticated, login, logout, error }}
+      value={{
+        user,
+        users,
+        isAuthenticated,
+        login,
+        logout,
+        error,
+        isLoading: loading,
+      }}
     >
       {children}
     </AuthContext.Provider>

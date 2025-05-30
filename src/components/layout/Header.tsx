@@ -10,7 +10,7 @@ const Header: React.FC = () => {
   const { logout } = useAuth();
   const { notifications } = useNotification();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [searchQuery, setSearchQuery] = useState("");
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   // Create refs for the dropdown elements
@@ -18,11 +18,11 @@ const Header: React.FC = () => {
   const notificationRef = useRef<HTMLDivElement>(null);
   const unreadNotifications = notifications.filter((n) => !n.read).length;
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Implement search functionality
-    console.log("Searching for:", searchQuery);
-  };
+  // const handleSearch = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   // Implement search functionality
+  //   console.log("Searching for:", searchQuery);
+  // };
 
   const handleLogout = () => {
     // Handle logout logic
