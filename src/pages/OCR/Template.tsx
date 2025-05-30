@@ -244,7 +244,7 @@ export const TemplateOCR = () => {
                 }}
               />
             )}
-            <div className="absolute bottom-2 left-2 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+            <div className="max-sm:hidden absolute bottom-2 left-2 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
               Drag to select OCR area
             </div>
           </div>
