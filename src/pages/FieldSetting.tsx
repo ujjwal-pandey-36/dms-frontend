@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-export const FieldSettingsPanel = () => {
+export const FieldSettingsPanel = ({
+  setShowFieldsPanel,
+}: {
+  setShowFieldsPanel: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const [selectedField, setSelectedField] = useState<number | null>(null);
   const fields = Array.from({ length: 10 }, (_, i) => ({
     id: i + 1,
@@ -105,16 +109,22 @@ export const FieldSettingsPanel = () => {
       {/* Footer Buttons - Stack on mobile */}
       <div className="flex flex-col-reverse sm:flex-row justify-between items-center pt-4 gap-3">
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm w-full">
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm w-full"
+            onClick={() => setShowFieldsPanel(false)}
+          >
             Save
           </button>
-          <button className="bg-blue-100 text-blue-700 px-4 py-2 rounded text-sm w-full">
+          <button
+            className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded text-sm w-full"
+            onClick={() => setShowFieldsPanel(false)}
+          >
             Cancel
           </button>
         </div>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm w-full sm:w-auto">
+        {/* <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm w-full sm:w-auto">
           Export to Excel
-        </button>
+        </button> */}
       </div>
     </div>
   );

@@ -102,15 +102,15 @@ export const AllocationPanel = () => {
   };
 
   const handleSubDeptAdd = () => {
-    const name = prompt("Enter Sub-Department name:");
-    if (name) alert(`Sub-Department "${name}" added.`);
+    // const name = prompt("Enter Sub-Department name:");
+    // if (name) alert(`Sub-Department "${name}" added.`);
   };
 
   const handleSubDeptDelete = () => {
-    const confirmDelete = confirm(
-      `Are you sure you want to delete "${selectedSubDept}"?`
-    );
-    if (confirmDelete) alert(`Sub-Department "${selectedSubDept}" deleted.`);
+    // const confirmDelete = confirm(
+    //   `Are you sure you want to delete "${selectedSubDept}"?`
+    // );
+    // if (confirmDelete) alert(`Sub-Department "${selectedSubDept}" deleted.`);
   };
 
   return (
@@ -124,7 +124,7 @@ export const AllocationPanel = () => {
           </p>
         </div>
         <button
-          className="flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm hover:bg-blue-200"
+          className="flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-md text-sm hover:bg-blue-200"
           onClick={() => setShowFieldsPanel(!showFieldsPanel)}
         >
           <SlidersHorizontal className="w-4 h-4" />
@@ -132,7 +132,9 @@ export const AllocationPanel = () => {
         </button>
       </header>
 
-      {showFieldsPanel && <FieldSettingsPanel />}
+      {showFieldsPanel && (
+        <FieldSettingsPanel setShowFieldsPanel={setShowFieldsPanel} />
+      )}
 
       {/* Department Selection */}
       <div className="border rounded-md p-4 bg-blue-50 space-y-4">
@@ -168,23 +170,23 @@ export const AllocationPanel = () => {
           </div>
         </div>
 
-        {/* Subdepartment Actions */}
-        <div className="flex justify-end items-center gap-2 flex-wrap">
+        {/* TODO:ADD AGAIN Subdepartment Actions */}
+        {/* <div className="flex justify-end items-center gap-2 flex-wrap">
           <button
             onClick={handleSubDeptAdd}
-            className="flex items-center justify-center gap-1 px-4 py-2 rounded-full bg-blue-600 text-white text-sm hover:bg-blue-700 w-full sm:w-auto"
+            className="flex items-center justify-center gap-1 px-4 py-2 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700 w-full sm:w-auto"
           >
             <PlusCircle className="w-4 h-4" />
             Add Sub-Department
           </button>
           <button
             onClick={handleSubDeptDelete}
-            className="flex items-center justify-center gap-1 px-4 py-2 rounded-full bg-red-100 text-red-700 text-sm hover:bg-red-200 w-full sm:w-auto"
+            className="flex items-center justify-center gap-1 px-4 py-2 rounded-md bg-red-100 text-red-700 text-sm hover:bg-red-200 w-full sm:w-auto"
           >
             <Trash2 className="w-4 h-4" />
             Delete
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Add User Form */}
@@ -320,7 +322,7 @@ export const AllocationPanel = () => {
         <button
           onClick={() => setShowAddUser(true)}
           disabled={showAddUser || mockUsers.length === users.length}
-          className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm ${
+          className={`flex items-center gap-1 px-4 py-2 rounded-md text-sm ${
             showAddUser || mockUsers.length === users.length
               ? "bg-gray-200 text-gray-500 cursor-not-allowed"
               : "bg-blue-600 text-white hover:bg-blue-700"
