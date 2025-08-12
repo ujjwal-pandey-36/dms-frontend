@@ -1,4 +1,6 @@
+import { fetchLogin } from "@/api/auth";
 import { User } from "@/types/User";
+import { setToken, setUserInStorage } from "@/utils/token";
 import {
   createContext,
   useContext,
@@ -7,12 +9,14 @@ import {
   ReactNode,
 } from "react";
 import toast from "react-hot-toast";
+import { Role } from "./ContextTypes";
 
 interface AuthContextType {
   user: User | null;
-  users: User[];
+  selectedRole: Role | null;
+  setSelectedRole: (role: Role) => void;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => User | null;
+  login: (email: string, password: string) => Promise<User | null>;
   logout: () => void;
   error: string | null;
   isLoading: boolean;
@@ -24,101 +28,84 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Mock users data
-const mockUsers: User[] = [
-  {
-    id: "user-1",
-    name: "Test",
-    email: "test@sofueled.com",
-    role: "Admin",
-    password: "test123",
-    avatar: "",
-  },
-  {
-    id: "user-2",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    role: "Manager",
-    password: "password2",
-    avatar: "",
-  },
-  {
-    id: "user-3",
-    name: "Robert Johnson",
-    email: "robert@example.com",
-    role: "Editor",
-    password: "password3",
-    avatar: "",
-  },
-  {
-    id: "user-4",
-    name: "Emily Wilson",
-    email: "emily@example.com",
-    role: "Viewer",
-    password: "password4",
-    avatar: "",
-  },
-];
-
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
-  const [users] = useState<User[]>(mockUsers);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  // Check if user is already logged in
+  const [selectedRole, setSelectedRoleState] = useState<Role | null>(null);
+
+  const setSelectedRole = (role: Role) => {
+    localStorage.setItem("selected_role", JSON.stringify(role) || "");
+    setSelectedRoleState(role);
+  };
+
+  // ✅ Combined: Auth check + Role restoration + Role defaulting
   useEffect(() => {
     const checkAuth = () => {
       const token = localStorage.getItem("auth_token");
       const storedUser = localStorage.getItem("user");
-
+      const storedRole = localStorage.getItem("selected_role");
       if (token && storedUser) {
         try {
           const userData = JSON.parse(storedUser) as User;
           setUser(userData);
           setIsAuthenticated(true);
+
+          // Restore role from storage if valid
+          if (userData.accessList?.length > 0) {
+            if (storedRole && userData.accessList.includes(storedRole)) {
+              setSelectedRoleState(JSON.parse(storedRole));
+            } else {
+              // Default to second role if multiple, else first
+              const fallbackRole =
+                userData.accessList.length >= 2
+                  ? userData.accessList[1]
+                  : userData.accessList[0];
+
+              setSelectedRole(fallbackRole);
+            }
+          }
         } catch (err) {
-          // If there's an error parsing the stored user data, clear the storage
           localStorage.removeItem("auth_token");
           localStorage.removeItem("user");
+          localStorage.removeItem("selected_role");
           setUser(null);
           setIsAuthenticated(false);
         }
       }
-
       setLoading(false);
     };
 
     checkAuth();
-    // Add event listener for storage changes
     window.addEventListener("storage", checkAuth);
     return () => window.removeEventListener("storage", checkAuth);
   }, []);
 
-  const login = (email: string, password: string) => {
+  const login = async (userName: string, password: string) => {
     try {
       setError(null);
 
-      // Find user in mock data
-      const foundUser = users.find(
-        (u) => u.email === email && u.password === password
-      );
-
-      if (foundUser) {
-        // Generate a simple token (in a real app, this would come from your API)
-        const token = btoa(`${email}:${Date.now()}`);
-
-        // Store both token and user data
-        localStorage.setItem("auth_token", token);
-        localStorage.setItem("user", JSON.stringify(foundUser));
-
-        setUser(foundUser);
+      const { token, user } = await fetchLogin(userName, password);
+      if (user) {
+        setToken(token);
+        setUserInStorage(user);
+        setUser(user);
         setIsAuthenticated(true);
-        toast.success(`Welcome back, ${foundUser.name}!`);
-        return foundUser;
+
+        // Set initial selected role
+        if (user.accessList?.length > 0) {
+          const defaultRole =
+            user.accessList.length >= 2
+              ? user.accessList[1]
+              : user.accessList[0];
+          setSelectedRole(defaultRole);
+        }
+
+        toast.success(`Welcome back, ${user.UserName}!`);
+        return user;
       } else {
         return null;
-        // throw new Error("Invalid email or password");
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Login failed";
@@ -131,16 +118,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = () => {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user");
+    localStorage.removeItem("selected_role");
     setUser(null);
+    setSelectedRoleState(null);
     setIsAuthenticated(false);
     toast.success("Logged out successfully");
   };
-
   return (
     <AuthContext.Provider
       value={{
         user,
-        users,
+        selectedRole,
+        setSelectedRole,
         isAuthenticated,
         login,
         logout,

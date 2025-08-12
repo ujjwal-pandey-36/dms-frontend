@@ -6,9 +6,13 @@ import {
   CardTitle,
 } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
-import { Button } from "../components/ui/Button";
+// import { Button } from "../components/ui/Button";
 import { Building } from "lucide-react";
-import { Image as ChakraImage, Input as ChakraInput } from "@chakra-ui/react";
+import {
+  Button,
+  Image as ChakraImage,
+  Input as ChakraInput,
+} from "@chakra-ui/react";
 import { LGU } from "@/types/User";
 
 export const LGUMaintenancePage: React.FC = () => {

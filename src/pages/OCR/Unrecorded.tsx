@@ -1,14 +1,32 @@
-import { Select } from "@/components/ui/Select";
-// import { Text } from "@chakra-ui/react";
-import { useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { Select } from '@/components/ui/Select';
+import { useNestedDepartmentOptions } from '@/hooks/useNestedDepartmentOptions';
+import { Button } from '@chakra-ui/react';
+import { useRef, useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { useTemplates } from './utils/useTemplates';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  UnrecordedDocument,
+  useUnrecordedDocuments,
+} from './utils/useUnrecorded';
+import { runOCR } from './utils/unrecordedHelpers';
+import { useDocument } from '@/contexts/DocumentContext';
+import { CurrentDocument } from '@/types/Document';
+import { useModulePermissions } from '@/hooks/useDepartmentPermissions';
+
 interface FormData {
   department: string;
   subdepartment: string;
   template: string;
   accessId: string;
-  selectedDoc: string;
+  selectedDoc: UnrecordedDocument | null;
   isLoaded: boolean;
+  previewUrl: string;
+  lastFetchedValues?: {
+    department: string;
+    subdepartment: string;
+    template: string;
+  };
 }
 
 export interface Rect {
@@ -17,72 +35,150 @@ export interface Rect {
   width: number;
   height: number;
 }
-export const documents = [
-  "BC-187_document-0000000349.pdf",
-  "BC-187_document-0000000348.pdf",
-  "BC-187_document-0000000347.pdf",
-  "BC-187_document-0000000346.pdf",
-  "BC-187_document-0000000345.pdf",
-  "BC-187_document-0000000344.pdf",
-  "BC-187_document-0000000343.pdf",
-];
+
 const OCRUnrecordedUI = () => {
   const [formData, setFormData] = useState<FormData>({
-    department: "",
-    subdepartment: "",
-    template: "",
-    accessId: "",
-    selectedDoc: "",
+    department: '',
+    subdepartment: '',
+    template: '',
+    accessId: '',
+    selectedDoc: null,
     isLoaded: false,
+    previewUrl: '',
   });
-
-  const [selection, setSelection] = useState<Rect | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
-    null
-  );
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!formData.isLoaded || !imgRef.current) return;
+  const {
+    departmentOptions,
+    getSubDepartmentOptions,
+    loading: loadingDepartments,
+  } = useNestedDepartmentOptions();
+  const [subDepartmentOptions, setSubDepartmentOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const { templateOptions } = useTemplates();
+  const { selectedRole } = useAuth();
+  const { unrecordedDocuments, fetchUnrecorded } = useUnrecordedDocuments();
+  const [currentUnrecoredDocument, setCurrentUnrecordedDocument] =
+    useState<CurrentDocument | null>(null);
+  const { loading, fetchDocument } = useDocument();
+  const unrecordedPermissions = useModulePermissions(9); // 1 = MODULE_ID
+  // Update sub-departments when department selection changes
+  useEffect(() => {
+    if (formData.department && departmentOptions.length > 0) {
+      const selectedDeptId = departmentOptions.find(
+        (dept) => dept.value === formData.department
+      )?.value;
+      console.log({ selectedDeptId });
+      if (selectedDeptId) {
+        const subs = getSubDepartmentOptions(Number(selectedDeptId));
+        setSubDepartmentOptions(subs);
+        // Only reset if the current subDept doesn't exist in new options
+        if (!subs.some((sub) => sub.label === formData.subdepartment)) {
+          setFormData((prev) => ({ ...prev, subdepartment: '' }));
+        }
+      }
+    } else {
+      setSubDepartmentOptions([]);
+      if (formData.subdepartment) {
+        // Only reset if there's a value
+        setFormData((prev) => ({ ...prev, subdepartment: '' }));
+      }
+    }
+  }, [formData.department, departmentOptions]);
 
-    const rect = imgRef.current.getBoundingClientRect();
-    setStartPoint({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    setIsDragging(true);
-  };
+  const handleOCR = async () => {
+    const selectedDocument = unrecordedDocuments.find(
+      (doc) => doc.FileName === formData.selectedDoc?.FileName
+    );
+    const selectedTemplateName = templateOptions.find(
+      (temp) => temp.value === formData.template
+    )?.label;
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || !startPoint || !imgRef.current) return;
+    if (!selectedDocument) {
+      toast.error('No document selected');
+      return;
+    }
 
-    const rect = imgRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const payload = {
+      templateName: selectedTemplateName,
+      userId: Number(selectedRole?.ID),
+      linkId: selectedDocument.LinkID,
+    };
 
-    setSelection({
-      x: Math.min(startPoint.x, x),
-      y: Math.min(startPoint.y, y),
-      width: Math.abs(x - startPoint.x),
-      height: Math.abs(y - startPoint.y),
-    });
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleOCR = () => {
-    if (selection) {
-      console.log("Selected OCR Area:", selection);
-      toast.success("Selected OCR Area");
-      // You would send `selection` coordinates along with `selectedDoc` to your OCR backend
+    try {
+      const res = await runOCR(selectedDocument.ID, payload);
+      console.log(res, 'runOCR');
+      setFormData({ ...formData, selectedDoc: null });
+      fetchUnrecorded(
+        formData.department,
+        formData.subdepartment,
+        String(selectedRole?.ID)
+      );
+      toast.success('OCR processing started successfully!');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to start OCR');
     }
   };
 
-  const handleLoad = () => {
-    if (formData.selectedDoc) {
+  const handleLoad = async () => {
+    if (!selectedRole?.ID) {
+      toast.error('Please select a role');
+      return;
+    }
+    setFormData({ ...formData, isLoaded: false });
+    try {
+      fetchUnrecorded(
+        formData.department,
+        formData.subdepartment,
+        String(selectedRole?.ID)
+      );
+      setFormData((prev) => ({
+        ...prev,
+        lastFetchedValues: {
+          department: prev.department,
+          subdepartment: prev.subdepartment,
+          template: prev.template,
+        },
+      }));
+      toast.success('Documents loaded successfully');
+    } catch (error) {
+      console.log(error);
+      toast.error('Failed to load document');
+    } finally {
       setFormData({ ...formData, isLoaded: true });
     }
   };
+
+  const handleDocSelection = (doc: UnrecordedDocument) => {
+    setFormData({
+      ...formData,
+      selectedDoc: doc,
+    });
+  };
+
+  const handlePreviewDoc = async () => {
+    if (!formData.selectedDoc) return;
+    try {
+      const res = await fetchDocument(formData.selectedDoc.ID.toString());
+      console.log(res, 'handlePreviewDoc');
+      setCurrentUnrecordedDocument(res);
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to start OCR');
+    }
+  };
+
+  const isSameAsLastFetch =
+    formData.department === formData.lastFetchedValues?.department &&
+    formData.subdepartment === formData.lastFetchedValues?.subdepartment &&
+    formData.template === formData.lastFetchedValues?.template;
+
+  if (loadingDepartments) {
+    return <div>Loading departments...</div>;
+  }
+
   return (
     <div className="flex flex-col bg-white rounded-md shadow-lg">
       {/* HEADER */}
@@ -94,21 +190,19 @@ const OCRUnrecordedUI = () => {
           Manage all unrecorded documents here
         </p>
       </header>
-      <div className="flex gap-4 p-2 sm:p-4 w-full max-md:flex-col">
-        {/* Left Panel */}
-        <div className="w-full lg:w-1/2 p-2 sm:p-6 space-y-4 border-r bg-white">
-          <div className="flex gap-4 md:flex-col max-sm:flex-col">
+
+      <div className="flex gap-4 p-2 sm:p-4 w-full max-lg:flex-col">
+        {/* Left Panel - Document List */}
+        <div className="w-full lg:w-1/2 p-2 sm:p-6 space-y-6 border-r bg-white">
+          <div className="flex gap-4 flex-col">
             <Select
               label="Department"
               value={formData.department}
               onChange={(e) =>
                 setFormData({ ...formData, department: e.target.value })
               }
-              options={[
-                { value: "finance", label: "Finance" },
-                { value: "payroll", label: "Payroll" },
-                { value: "hr", label: "HR" },
-              ]}
+              placeholder="Select a Department"
+              options={departmentOptions}
             />
 
             <Select
@@ -117,11 +211,15 @@ const OCRUnrecordedUI = () => {
               onChange={(e) =>
                 setFormData({ ...formData, subdepartment: e.target.value })
               }
-              options={[
-                { value: "payroll", label: "Payroll" },
-                { value: "documents", label: "Documents" },
-                { value: "records", label: "Records" },
-              ]}
+              placeholder={
+                !formData.department
+                  ? 'Select a Department First'
+                  : subDepartmentOptions.length === 0
+                  ? 'No Sub-Departments Available'
+                  : 'Select a Sub-Department'
+              }
+              options={subDepartmentOptions}
+              disabled={!formData.department}
             />
 
             <Select
@@ -130,96 +228,94 @@ const OCRUnrecordedUI = () => {
               onChange={(e) =>
                 setFormData({ ...formData, template: e.target.value })
               }
-              options={[
-                { value: "id", label: "ID Card" },
-                { value: "birth", label: "Birth Certificate" },
-                { value: "passport", label: "Passport" },
-              ]}
+              placeholder="Select a Template"
+              options={templateOptions}
             />
+
+            {unrecordedPermissions?.Add && (
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm w-full"
+                onClick={handleLoad}
+                disabled={
+                  !formData.department ||
+                  !formData.subdepartment ||
+                  !formData.template ||
+                  isSameAsLastFetch
+                }
+              >
+                Get Documents
+              </Button>
+            )}
           </div>
-          {/* NOTE: HARD CODED FOR NOW  */}
-          {formData.template === "birth" ? (
-            <>
-              <div className="bg-orange-100 text-orange-700 font-semibold px-4 py-2 rounded text-center">
-                8 Unrecorded Documents
-              </div>
 
-              <div className="border rounded p-2 h-40 overflow-y-auto">
-                {documents.map((doc, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() =>
-                      setFormData({
-                        ...formData,
-                        selectedDoc: doc,
-                        isLoaded: false,
-                      })
-                    }
-                    className={`cursor-pointer text-sm px-2 py-1 rounded hover:bg-blue-100 ${
-                      formData.selectedDoc === doc ? "bg-blue-200" : ""
-                    }`}
-                  >
-                    {doc}
-                  </div>
-                ))}
+          {unrecordedDocuments.length > 0 &&
+            unrecordedDocuments?.map((doc) => (
+              <div
+                key={doc.ID}
+                onClick={() => handleDocSelection(doc)}
+                className={`cursor-pointer text-sm px-2 py-1 rounded hover:bg-blue-100 ${
+                  formData.selectedDoc?.FileName === doc.FileName
+                    ? 'bg-blue-200'
+                    : ''
+                }`}
+              >
+                {doc.FileName}
               </div>
+            ))}
 
-              <div className="flex gap-2">
-                <button
-                  className="flex-1 bg-gray-300 py-1.5 rounded hover:bg-gray-400 text-sm"
-                  onClick={handleLoad}
-                >
-                  Load
-                </button>
-                <button
-                  onClick={handleOCR}
-                  disabled={!formData.selectedDoc}
-                  className="flex-1 bg-blue-600 text-white py-1.5 rounded hover:bg-blue-700 text-sm"
-                >
-                  OCR
-                </button>
-              </div>
-            </>
-          ) : formData.template === "id" ? (
-            <div className="bg-orange-100 text-orange-700 font-semibold px-4 py-2 rounded text-center">
-              0 Documents Found
+          {unrecordedDocuments.length === 0 && formData.isLoaded && (
+            <div className="text-xl text-center px-2 py-1  ">
+              No Documents Found
             </div>
-          ) : null}
+          )}
+
+          {formData.selectedDoc && (
+            <div className="flex gap-4 max-sm:flex-col w-full flex-1">
+              <Button
+                className="bg-gray-100 hover:bg-gray-200  px-4 py-2 rounded text-sm flex-1 "
+                onClick={handlePreviewDoc}
+                disabled={!formData.selectedDoc || loading}
+              >
+                {loading ? 'Loading...' : 'Preview Doc'}
+              </Button>
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm flex-1 "
+                onClick={handleOCR}
+                disabled={!formData.selectedDoc}
+              >
+                Start OCR
+              </Button>
+            </div>
+          )}
         </div>
 
-        {/* Right Panel */}
-        <div className="w-full lg:w-1/2 p-2 sm:p-4 flex items-center justify-center relative bg-white">
-          {formData.isLoaded ? (
-            <div
-              className="relative w-full h-full border rounded-md overflow-hidden"
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-            >
-              <img
-                ref={imgRef}
-                src="/sample.png"
-                alt="Document Preview"
-                className="object-contain w-full h-full select-none"
-                draggable={false}
-              />
-              {selection && (
-                <div
-                  className="absolute border-2 border-blue-500 bg-blue-200 bg-opacity-20"
+        {/* Right Panel - Document Preview */}
+        <div className="w-full lg:w-1/2 p-2 sm:p-4 bg-white">
+          {currentUnrecoredDocument?.document[0]?.filepath &&
+          formData.selectedDoc ? (
+            <div className="w-full max-h-[60vh] overflow-auto border rounded-md">
+              <div
+                className="relative"
+                style={{ width: '100%', minWidth: '100%', height: '100%' }}
+              >
+                <img
+                  ref={imgRef}
+                  src={currentUnrecoredDocument?.document[0]?.filepath || ''}
+                  alt="Document Preview"
+                  className="block"
                   style={{
-                    left: selection.x,
-                    top: selection.y,
-                    width: selection.width,
-                    height: selection.height,
+                    width: '100%',
+                    height: '100%',
+                    minWidth: '100%',
                   }}
+                  draggable={false}
                 />
-              )}
-              <div className="absolute bottom-2 left-2 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                Drag to select OCR area then click "OCR"
               </div>
             </div>
           ) : (
-            <p className="text-gray-400">Select a document to preview</p>
+            <p className="text-gray-400 text-center">
+              Load document to preview
+            </p>
           )}
         </div>
       </div>

@@ -1,104 +1,312 @@
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Search } from "lucide-react";
-import React, { useState } from "react";
-
-interface Document {
-  id: string;
-  department: string;
-  subdepartment: string;
-  fileDescription: string;
-  fileDate: string;
-  name: string;
-  description: string;
-  expirationDate?: string;
-  confidential: boolean;
-  remarks: string;
-  fileName?: string;
+import { DeleteDialog } from '@/components/ui/DeleteDialog';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+// import { useDepartmentOptions } from '@/hooks/useDepartmentOptions';
+import { Button } from '@chakra-ui/react';
+import {
+  // BookCheck,
+  DeleteIcon,
+  Edit,
+  Search,
+  Trash2,
+  UploadCloud,
+} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
+import {
+  editDocument,
+  fetchDocuments,
+  uploadFile,
+  deleteDocument,
+} from './utils/uploadAPIs';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  buildDocumentFormData,
+  DocumentUploadProp,
+} from './utils/documentHelpers';
+import { useNestedDepartmentOptions } from '@/hooks/useNestedDepartmentOptions';
+import { useModulePermissions } from '@/hooks/useDepartmentPermissions';
+import { PaginationControls } from '@/components/ui/PaginationControls';
+interface DocumentWrapper {
+  newdoc: DocumentUploadProp;
+  isRestricted: boolean;
+  restrictions: any[]; // or define a proper type for restrictions
 }
-
-const dummyDepartments = [
-  { value: "finance", label: "Finance" },
-  { value: "payroll", label: "Payroll" },
-  { value: "hr", label: "HR" },
-];
-
-const dummySubdepartments = [
-  { value: "teamA", label: "Team A" },
-  { value: "teamB", label: "Team B" },
-  { value: "teamC", label: "Team C" },
-];
-
 export default function DocumentUpload() {
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documents, setDocuments] = useState<DocumentWrapper[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [search, setSearch] = useState("");
-  const [editId, setEditId] = useState<string | null>(null);
-  const [newDoc, setNewDoc] = useState<Partial<Document>>({
-    department: "Main Office",
-    subdepartment: "Sub Office",
-    fileDate: new Date().toISOString().split("T")[0],
-    expirationDate: new Date().toISOString().split("T")[0],
-    confidential: false,
+  const [search, setSearch] = useState('');
+  const [editId, setEditId] = useState<number | null>(null);
+  const [paginationData, setPaginationData] = useState<any>(null);
+  const [newDoc, setNewDoc] = useState<Partial<DocumentUploadProp>>({
+    FileName: '',
+    FileDescription: '',
+    DepartmentId: 0,
+    SubDepartmentId: 0,
+    FileDate: '',
+    ExpirationDate: '',
+    Confidential: false,
+    Description: '',
+    Remarks: '',
+    Active: true,
+    Expiration: false,
+    publishing_status: false,
+    // Initialize all text fields
+    Text1: '',
+    Text2: '',
+    Text3: '',
+    Text4: '',
+    Text5: '',
+    Text6: '',
+    Text7: '',
+    Text8: '',
+    Text9: '',
+    Text10: '',
+    // Initialize all date fields
+    Date1: null,
+    Date2: null,
+    Date3: null,
+    Date4: null,
+    Date5: null,
+    Date6: null,
+    Date7: null,
+    Date8: null,
+    Date9: null,
+    Date10: null,
   });
-
+  // Add a ref at the top of your component
+  const fileInputRef = useRef<HTMLInputElement>(null); // Properly type the ref
+  // const { departmentOptions, subDepartmentOptions } = useDepartmentOptions();
+  const { departmentOptions, getSubDepartmentOptions, loading } =
+    useNestedDepartmentOptions();
+  const { selectedRole } = useAuth();
+  const [currentPage, setCurrentPage] = useState(1);
+  const uploadPermissions = useModulePermissions(3); // 1 = MODULE_ID
+  const loadDocuments = async () => {
+    try {
+      const { data } = await fetchDocuments(
+        Number(selectedRole?.ID),
+        currentPage
+      );
+      setDocuments(data.documents);
+      setPaginationData(data.pagination);
+    } catch (err) {
+      console.error('Failed to fetch documents', err);
+    }
+  };
+  useEffect(() => {
+    loadDocuments();
+  }, [selectedRole, currentPage]);
+  // console.log({ documents });
   const handleAttach = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log({ e });
     if (e.target.files?.length) {
       const file = e.target.files[0];
+      console.log({ file });
       setSelectedFile(file);
-      setNewDoc((prev) => ({ ...prev, fileName: file.name }));
+      // setNewDoc((prev) => ({ ...prev, FileName: file.name }));
     }
   };
 
-  const handleAddOrUpdate = () => {
-    if (!newDoc.name || !newDoc.fileDescription) return;
-    if (editId) {
-      setDocuments((prev) =>
-        prev.map((doc) =>
-          doc.id === editId ? ({ ...doc, ...newDoc } as Document) : doc
-        )
-      );
-    } else {
-      setDocuments([
-        ...documents,
-        {
-          ...newDoc,
-          id: `doc-${Date.now()}`,
-          remarks: newDoc.remarks || "",
-        } as Document,
-      ]);
+  const handleAddDocument = async () => {
+    // console.log({ newDoc, selectedFile });
+    try {
+      const formData = buildDocumentFormData(newDoc, selectedFile, true);
+      console.log({ formData });
+      const response = await uploadFile(formData);
+      if (response.status) {
+        toast.success('Document Added Successfully');
+        await loadDocuments();
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      console.error('Add document failed:', error);
+      toast.error('Failed to add document');
+    } finally {
+      resetForm();
     }
+  };
+
+  const handleUpdateDocument = async () => {
+    if (!editId) return;
+
+    try {
+      const formData = buildDocumentFormData(
+        newDoc,
+        selectedFile,
+        false,
+        editId
+      );
+      const response = await editDocument(formData);
+
+      // setDocuments((prev) =>
+      //   prev.map((doc) =>
+      //     doc.newdoc.ID === editId ? { ...doc, ...response.data } : doc
+      //   )
+      // );
+      console.log({ response });
+      if (response.status) {
+        await loadDocuments();
+        toast.success('Document Updated Successfully');
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error: any) {
+      console.error('Update document failed:', error);
+      toast.error('Failed to update document ' + error.message);
+    } finally {
+      resetForm();
+    }
+  };
+
+  const handleAddOrUpdate = async () => {
+    const isDocumentNameExists = documents.some(
+      (docWrapper: { newdoc: DocumentUploadProp }) => {
+        const doc = docWrapper.newdoc;
+        return (
+          doc.FileName === newDoc.FileName && (!editId || doc.ID !== editId)
+        );
+      }
+    );
+    if (isDocumentNameExists) {
+      toast.error('Document Name Already Exists');
+      return;
+    }
+
+    try {
+      editId ? await handleUpdateDocument() : await handleAddDocument();
+    } catch (error) {
+      console.error('Failed to add or update document:', error);
+      toast.error('Failed to add or update document');
+    }
+  };
+
+  const resetForm = () => {
     setNewDoc({
-      department: "Main Office",
-      subdepartment: "Sub Office",
-      confidential: false,
+      FileName: '',
+      FileDescription: '',
+      DepartmentId: 0,
+      SubDepartmentId: 0,
+      FileDate: '',
+      ExpirationDate: '',
+      Confidential: false,
+      Description: '',
+      Remarks: '',
+      Active: true,
+      Expiration: false,
+      publishing_status: false,
+
+      // Reset all text fields
+      Text1: '',
+      Text2: '',
+      Text3: '',
+      Text4: '',
+      Text5: '',
+      Text6: '',
+      Text7: '',
+      Text8: '',
+      Text9: '',
+      Text10: '',
+      // Reset all date fields
+      Date1: null,
+      Date2: null,
+      Date3: null,
+      Date4: null,
+      Date5: null,
+      Date6: null,
+      Date7: null,
+      Date8: null,
+      Date9: null,
+      Date10: null,
     });
-    setSelectedFile(null);
+    handleRemoveFile();
+
     setEditId(null);
   };
 
-  const handleEdit = (id: string) => {
-    const doc = documents.find((d) => d.id === id);
+  const handleEdit = (id: number) => {
+    const doc = documents.find((d) => d.newdoc.ID === id);
     if (doc) {
-      setNewDoc(doc);
+      setNewDoc(doc.newdoc);
       setEditId(id);
+      handleRemoveFile();
+    }
+  };
+  // console.log(newDoc);
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteDocument(id);
+      toast.success('Document deleted successfully');
+      setDocuments((prev) => prev.filter((d) => d.newdoc.ID !== id));
+    } catch (error) {
+      console.error('Failed to delete document:', error);
+      toast.error('Failed to delete document');
     }
   };
 
-  const handleDelete = (id: string) => {
-    setDocuments((prev) => prev.filter((d) => d.id !== id));
+  const filteredDocs = documents.filter((docWrapper) => {
+    const doc = docWrapper.newdoc;
+    return (
+      (doc.FileName || '').toLowerCase().includes(search.toLowerCase()) ||
+      (doc.FileDescription || doc.Description || '')
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
+  });
+
+  const isFormValid = () => {
+    const baseValidation =
+      newDoc.DepartmentId &&
+      newDoc.SubDepartmentId &&
+      newDoc.FileDescription &&
+      newDoc.FileDate &&
+      newDoc.FileName;
+    return editId ? baseValidation : baseValidation && selectedFile;
   };
 
-  const filteredDocs = documents.filter(
-    (doc) =>
-      doc.name.toLowerCase().includes(search.toLowerCase()) ||
-      doc.description.toLowerCase().includes(search.toLowerCase())
-  );
+  const handlePublish = async (docWrapper: DocumentWrapper) => {
+    try {
+      const doc = docWrapper.newdoc;
+      // Create payload with publishing_status set to true
+      const publishDoc = {
+        ...doc,
+        publishing_status: true,
+      };
+
+      const formData = buildDocumentFormData(publishDoc, null, false, doc.ID);
+      const { status } = await editDocument(formData);
+
+      if (!status) throw new Error('Failed to publish document');
+
+      setDocuments((prev) =>
+        prev.map((d) =>
+          d.newdoc.ID === doc.ID
+            ? { ...d, newdoc: { ...d.newdoc, publishing_status: true } }
+            : d
+        )
+      );
+      toast.success('Document published successfully');
+    } catch (error) {
+      console.error('Failed to publish document:', error);
+      toast.error('Failed to publish document');
+    }
+  };
+  const formatDateForInput = (isoString: string) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return date.toISOString().split('T')[0];
+  };
+  // Modify your remove file handler
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Clear the input value
+    }
+  };
 
   return (
-    <div className="flex flex-col bg-white rounded-md shadow-lg animate-fade-in p-4 sm:p-6 space-y-6">
+    <div className="flex flex-col bg-white rounded-md shadow-lg animate-fade-in p-3 sm:p-6 space-y-6">
       {/* Header */}
       <header className="text-left">
         <h1 className="text-3xl font-bold text-blue-800">Upload</h1>
@@ -112,60 +320,126 @@ export default function DocumentUpload() {
         <div className="grid sm:grid-cols-2 gap-4 text-black">
           {/* Department */}
           <div className="col-span-1">
-            <Select
-              label="Department"
-              value={newDoc.department}
+            <label className="text-sm sm:text-base">
+              Department <span className="text-red-500">*</span>{' '}
+            </label>
+            {/* <Select
+              placeholder="Select a department"
+              value={newDoc.DepartmentId?.toString() || ""}
               onChange={(e) =>
-                setNewDoc({ ...newDoc, department: e.target.value })
+                setNewDoc({ ...newDoc, DepartmentId: Number(e.target.value) })
               }
-              options={dummyDepartments}
+              options={departmentOptions}
+            /> */}
+            <Select
+              placeholder="Select a department"
+              value={newDoc.DepartmentId?.toString() || ''}
+              onChange={(e) => {
+                const deptId = Number(e.target.value);
+                setNewDoc({
+                  ...newDoc,
+                  DepartmentId: deptId,
+                  SubDepartmentId: 0, // Reset sub-department when department changes
+                });
+              }}
+              options={departmentOptions}
+              disabled={loading}
             />
           </div>
 
           {/* Sub-Department */}
           <div className="col-span-1">
-            <Select
-              label="Sub-Department"
-              value={newDoc.subdepartment}
+            <label className="text-sm sm:text-base">
+              Sub-Department <span className="text-red-500">*</span>{' '}
+            </label>
+            {/* <Select
+              placeholder="Select a sub-department"
+              value={newDoc.SubDepartmentId?.toString() || ''}
               onChange={(e) =>
-                setNewDoc({ ...newDoc, subdepartment: e.target.value })
+                setNewDoc({
+                  ...newDoc,
+                  SubDepartmentId: Number(e.target.value),
+                })
               }
-              options={dummySubdepartments}
+              options={subDepartmentOptions}
+            /> */}
+            <Select
+              placeholder={
+                !newDoc.DepartmentId
+                  ? 'Select a Department First'
+                  : getSubDepartmentOptions(newDoc.DepartmentId).length === 0
+                  ? 'No Sub-Departments Available'
+                  : 'Select a Sub-Department'
+              }
+              value={newDoc.SubDepartmentId?.toString() || ''}
+              onChange={(e) =>
+                setNewDoc({
+                  ...newDoc,
+                  SubDepartmentId: Number(e.target.value),
+                })
+              }
+              options={getSubDepartmentOptions(newDoc.DepartmentId || 0)}
+              disabled={!newDoc.DepartmentId || loading}
             />
           </div>
 
           {/* File Description */}
           <div className="col-span-1">
-            <label className="text-sm sm:text-base">File Description</label>
+            <label className="text-sm sm:text-base">
+              File Description <span className="text-red-500">*</span>{' '}
+            </label>
             <Input
               className="w-full"
-              value={newDoc.fileDescription || ""}
+              value={newDoc.FileDescription || ''}
               onChange={(e) =>
-                setNewDoc({ ...newDoc, fileDescription: e.target.value })
+                setNewDoc({ ...newDoc, FileDescription: e.target.value })
               }
+              required
+              placeholder="Enter file description"
             />
           </div>
 
           {/* File Date */}
           <div className="col-span-1">
-            <label className="text-sm sm:text-base">File Date</label>
-            <Input
+            <label className="text-sm sm:text-base">
+              File Date <span className="text-red-500">*</span>{' '}
+            </label>
+            {/* <Input
               type="date"
               className="w-full"
-              value={newDoc.fileDate}
+              value={newDoc.FileDate || ''}
               onChange={(e) =>
-                setNewDoc({ ...newDoc, fileDate: e.target.value })
+                setNewDoc({ ...newDoc, FileDate: e.target.value })
               }
+              required
+              placeholder="Enter file date"
+            /> */}
+            <Input
+              type="date"
+              value={formatDateForInput(newDoc.FileDate || '')}
+              onChange={(e) => {
+                const date = e.target.value ? new Date(e.target.value) : null;
+                setNewDoc({
+                  ...newDoc,
+                  FileDate: date ? date.toISOString() : undefined,
+                });
+              }}
             />
           </div>
 
-          {/* Name */}
+          {/* File Name */}
           <div className="col-span-1">
-            <label className="text-sm sm:text-base">Name</label>
+            <label className="text-sm sm:text-base">
+              File Name <span className="text-red-500">*</span>{' '}
+            </label>
             <Input
               className="w-full"
-              value={newDoc.name || ""}
-              onChange={(e) => setNewDoc({ ...newDoc, name: e.target.value })}
+              value={newDoc.FileName || ''}
+              onChange={(e) =>
+                setNewDoc({ ...newDoc, FileName: e.target.value })
+              }
+              required
+              placeholder="Enter file name"
             />
           </div>
 
@@ -174,76 +448,172 @@ export default function DocumentUpload() {
             <label className="text-sm sm:text-base">Description</label>
             <Input
               className="w-full"
-              value={newDoc.description || ""}
+              value={newDoc.Description || ''}
               onChange={(e) =>
-                setNewDoc({ ...newDoc, description: e.target.value })
+                setNewDoc({ ...newDoc, Description: e.target.value })
               }
+              placeholder="Enter description"
             />
           </div>
-
-          {/* Expiration Date */}
-          <div className="col-span-1">
-            <label className="text-sm sm:text-base">Expiration Date</label>
-            <Input
-              type="date"
-              className="w-full"
-              value={newDoc.expirationDate}
-              onChange={(e) =>
-                setNewDoc({ ...newDoc, expirationDate: e.target.value })
-              }
-            />
-          </div>
-
-          {/* Confidential Checkbox */}
-          <div className="col-span-1 flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={newDoc.confidential}
-              onChange={(e) =>
-                setNewDoc({ ...newDoc, confidential: e.target.checked })
-              }
-              className="h-4 w-4"
-            />
-            <label className="text-sm sm:text-base">Confidential</label>
-          </div>
-
           {/* Remarks */}
           <div className="col-span-1 sm:col-span-2">
             <label className="text-sm sm:text-base">Remarks</label>
             <textarea
               className="w-full border rounded p-2 text-sm sm:text-base"
               rows={3}
-              value={newDoc.remarks || ""}
+              value={newDoc.Remarks || ''}
               onChange={(e) =>
-                setNewDoc({ ...newDoc, remarks: e.target.value })
+                setNewDoc({ ...newDoc, Remarks: e.target.value })
               }
+              placeholder="Enter remarks"
             ></textarea>
           </div>
 
           {/* Attachment */}
-          <div className="col-span-1 sm:col-span-2">
-            <label className="text-sm sm:text-base">Attachment</label>
-            <Input
-              type="file"
-              onChange={handleAttach}
-              className="w-full text-sm"
+          {editId ? null : (
+            <div className="col-span-1 sm:col-span-2">
+              <label className="text-sm sm:text-base">
+                Attachment <span className="text-red-500">*</span>{' '}
+              </label>
+              <div className="mt-1">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg
+                      className="w-8 h-8 mb-4 text-gray-500"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 16"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                      />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500">
+                      <span className="font-semibold">Click to upload</span> or
+                      drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {selectedFile
+                        ? selectedFile.name
+                        : 'PDF, DOCX, XLSX up to 10MB'}
+                    </p>
+                  </div>
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={handleAttach}
+                    ref={fileInputRef}
+                    required
+                  />
+                </label>
+              </div>
+              {selectedFile && (
+                <div className="flex items-center mt-2">
+                  <span className="text-sm text-blue-600">
+                    {selectedFile.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleRemoveFile}
+                    className="ml-2 text-red-500 hover:text-red-700"
+                  >
+                    <DeleteIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {/* Confidential Checkbox */}
+          <div className="col-span-1 flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={newDoc.Confidential || false}
+              onChange={(e) =>
+                setNewDoc({ ...newDoc, Confidential: e.target.checked })
+              }
+              id="confidential"
+              className="h-4 w-4"
             />
-            {selectedFile && (
-              <p className="text-xs sm:text-sm mt-1 text-blue-700 truncate">
-                Attached: {selectedFile.name}
-              </p>
-            )}
+            <label
+              className="text-sm sm:text-base cursor-pointer"
+              htmlFor="confidential"
+            >
+              Confidential
+            </label>
           </div>
+
+          {/* Expiration Checkbox */}
+          <div className="col-span-1 flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={newDoc.Expiration || false}
+              onChange={(e) =>
+                setNewDoc({ ...newDoc, Expiration: e.target.checked })
+              }
+              id="expiration"
+              className="h-4 w-4"
+            />
+            <label
+              className="text-sm sm:text-base cursor-pointer"
+              htmlFor="expiration"
+            >
+              Has Expiration
+            </label>
+          </div>
+
+          {/* Expiration Date - Conditionally rendered */}
+          {newDoc.Expiration && (
+            <div className="col-span-1">
+              <label className="text-sm sm:text-base">
+                Expiration Date <span className="text-red-500">*</span>{' '}
+              </label>
+              <Input
+                type="date"
+                className="w-full"
+                value={
+                  newDoc.ExpirationDate
+                    ? newDoc.ExpirationDate.split('T')[0]
+                    : ''
+                }
+                onChange={(e) =>
+                  setNewDoc({
+                    ...newDoc,
+                    ExpirationDate: e.target.value
+                      ? `${e.target.value}T00:00:00.000Z`
+                      : undefined,
+                  })
+                }
+                required={newDoc.Expiration}
+                placeholder="Enter expiration date"
+              />
+            </div>
+          )}
         </div>
 
         {/* Submit Button */}
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-4 max-sm:flex-col">
           <Button
-            onClick={handleAddOrUpdate}
-            className="w-full sm:w-2/3 md:w-1/3"
+            onClick={resetForm}
+            className="w-full sm:w-2/3 md:w-1/3 px-2 bg-gray-200 text-black hover:bg-gray-300"
+            // disabled={!isFormValid()}
           >
-            {editId ? "Update" : "Add"} Document
+            Cancel
           </Button>
+          {/* // TODO ADD PROGRESS BAR HERE */}
+          {uploadPermissions.Add && (
+            <Button
+              onClick={handleAddOrUpdate}
+              className="w-full sm:w-2/3 md:w-1/3 px-2 bg-blue-600 text-white hover:bg-blue-700"
+              disabled={!isFormValid()}
+            >
+              {editId ? 'Update' : 'Add'} Document
+            </Button>
+          )}
         </div>
       </div>
 
@@ -270,62 +640,157 @@ export default function DocumentUpload() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[600px] text-sm border mt-4">
-              <thead className="bg-blue-100">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th className="border p-2 text-left">File</th>
-                  <th className="border p-2 text-left hidden sm:table-cell">
-                    Name
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider  whitespace-nowrap">
+                    ID
                   </th>
-                  <th className="border p-2 text-left hidden md:table-cell">
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                    File Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                    Link ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">
                     Description
                   </th>
-                  <th className="border p-2 text-left">Expiration</th>
-                  <th className="border p-2 text-left hidden sm:table-cell">
-                    Attachment
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                    Remarks
                   </th>
-                  <th className="border p-2 text-left">Actions</th>
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                    File Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                    Expiration Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                    Department
+                  </th>
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                    Sub-Department
+                  </th>
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                    Confidential
+                  </th>
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                    Active
+                  </th>
+                  <th className="px-6 py-3 text-left text-base font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-base font-semibold text-gray-700 uppercase tracking-wider text-right">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {filteredDocs.map((doc) => (
-                  <tr key={doc.id} className="odd:bg-gray-50 even:bg-white">
-                    <td className="border p-2">{doc.id}</td>
-                    <td className="border p-2 hidden sm:table-cell">
-                      {doc.name}
-                    </td>
-                    <td className="border p-2 hidden md:table-cell">
-                      {doc.description}
-                    </td>
-                    <td className="border p-2">{doc.expirationDate || "-"}</td>
-                    <td className="border p-2 hidden sm:table-cell">
-                      {doc.fileName || "-"}
-                    </td>
-                    <td className="border p-2">
-                      <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(doc.id)}
-                          className="w-full sm:w-auto"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => handleDelete(doc.id)}
-                          className="w-full sm:w-auto"
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredDocs.map((docWrapper) => {
+                  const doc = docWrapper.newdoc;
+                  // Find current department
+                  const currentDepartment =
+                    departmentOptions.find(
+                      (dep) =>
+                        dep.value.toString() === doc.DepartmentId.toString()
+                    )?.label || 'N/A';
+
+                  // Get sub-department options for this department
+                  const subDeptOptions = getSubDepartmentOptions(
+                    doc.DepartmentId
+                  );
+
+                  // Find current sub-department
+                  const currentSubDepartment =
+                    subDeptOptions.find(
+                      (sub) =>
+                        sub.value.toString() === doc.SubDepartmentId.toString()
+                    )?.label || 'N/A';
+                  return (
+                    <tr key={doc.ID}>
+                      <td className="border px-6 py-3">{doc.ID}</td>
+                      <td className="border px-6 py-3">{doc.FileName}</td>
+                      <td className="border px-6 py-3">{doc.LinkID}</td>
+                      <td className="border px-6 py-3">
+                        {doc.Description || '-'}
+                      </td>
+                      <td className="border px-6 py-3">{doc.Remarks || '-'}</td>
+                      <td className="border px-6 py-3">
+                        {doc.FileDate
+                          ? new Date(doc.FileDate).toLocaleDateString()
+                          : '-'}
+                      </td>
+                      <td className="border px-6 py-3">
+                        {doc.Expiration
+                          ? new Date(doc.ExpirationDate).toLocaleDateString()
+                          : '-'}
+                      </td>
+                      <td className="border px-6 py-3">{currentDepartment}</td>
+                      <td className="border px-6 py-3">
+                        {currentSubDepartment}
+                      </td>
+                      <td className="border px-6 py-3">
+                        {doc.Confidential ? 'Yes' : 'No'}
+                      </td>
+                      <td className="border px-6 py-3">
+                        {doc.Active ? 'Yes' : 'No'}
+                      </td>
+                      <td className="border px-6 py-3">
+                        {doc.publishing_status ? (
+                          <span className="text-gray-900">Published</span>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handlePublish(docWrapper)}
+                            className="w-full sm:flex-1 text-green-600 hover:text-green-800"
+                          >
+                            <UploadCloud className="h-4 w-4" />
+                            Publish
+                          </Button>
+                        )}
+                      </td>
+                      <td className="border px-6 py-3">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full">
+                          {uploadPermissions.Edit && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(doc.ID)}
+                              className="w-full sm:flex-1 text-blue-600 hover:text-blue-900"
+                            >
+                              <Edit className="h-4 w-4" />
+                              Edit
+                            </Button>
+                          )}
+                          {uploadPermissions.Delete && (
+                            <DeleteDialog
+                              onConfirm={() => handleDelete(doc.ID)}
+                            >
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="w-full sm:flex-1 text-red-600 hover:text-red-700 "
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                Delete
+                              </Button>
+                            </DeleteDialog>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
+        <PaginationControls
+          currentPage={currentPage}
+          totalItems={paginationData?.totalItems}
+          itemsPerPage={10}
+          onPageChange={setCurrentPage}
+          // onItemsPerPageChange={setItemsPerPage}
+        />
       </div>
     </div>
   );

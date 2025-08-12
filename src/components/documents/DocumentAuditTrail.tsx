@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Document, AuditEntry } from "../../types/Document";
-import { format } from "date-fns";
+import React, { useState } from 'react';
+import { AuditTrail, CurrentDocument } from '@/types/Document';
+import { format } from 'date-fns';
 import {
   Clock,
   Search,
@@ -8,96 +8,123 @@ import {
   Filter,
   ChevronDown,
   ChevronUp,
-} from "lucide-react";
-import { Button } from "../ui/Button";
+} from 'lucide-react';
+import { Button } from '@chakra-ui/react';
 
 interface DocumentAuditTrailProps {
-  document: Document;
+  document: CurrentDocument | null;
 }
 
 const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
   document,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<{ from: string; to: string }>({
-    from: "",
-    to: "",
+    from: '',
+    to: '',
   });
 
-  // Combine audit entries from document and changes from change history
-  const allAuditEntries: AuditEntry[] = [
-    ...document.auditTrail,
-    ...document.activity.map((activity) => ({
-      id: `activity-${activity.timestamp}`,
-      documentId: document.id,
-      userId: activity.userId,
-      userName: activity.userName,
-      action: activity.action,
-      timestamp: activity.timestamp,
-      changes: [],
-    })),
-  ].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  if (!document) return null;
+
+  // Sort audit trails by date
+  const allAuditEntries: AuditTrail[] = document.auditTrails.sort(
+    (a, b) =>
+      new Date(b.ActionDate).getTime() - new Date(a.ActionDate).getTime()
   );
 
   // Filter entries based on search and filters
   const filteredEntries = allAuditEntries.filter((entry) => {
     // Search term filter
-    if (
-      searchTerm &&
-      !entry.action.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      !entry.userName.toLowerCase().includes(searchTerm.toLowerCase())
-    ) {
-      return false;
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      if (
+        !entry.Action.toLowerCase().includes(searchLower) &&
+        !entry.actor.userName.toLowerCase().includes(searchLower) &&
+        !(entry.Description?.toLowerCase().includes(searchLower) ?? false)
+      ) {
+        return false;
+      }
     }
 
     // User filter
-    if (selectedUser && entry.userId !== selectedUser) {
+    if (selectedUser && entry.actor.id.toString() !== selectedUser) {
       return false;
     }
 
     // Action filter
-    if (selectedAction && !entry.action.includes(selectedAction)) {
+    if (selectedAction && entry.Action !== selectedAction) {
       return false;
     }
 
     // Date range filter
-    if (
-      dateRange.from &&
-      new Date(entry.timestamp) < new Date(dateRange.from)
-    ) {
-      return false;
-    }
-    if (dateRange.to && new Date(entry.timestamp) > new Date(dateRange.to)) {
-      return false;
+    // const actionDate = new Date(entry.ActionDate);
+    // if (dateRange.from && actionDate <= new Date(dateRange.from)) {
+    //   return false;
+    // }
+    // if (dateRange.to && actionDate >= new Date(dateRange.to)) {
+    //   return false;
+    // }
+    const actionDate = new Date(entry.ActionDate);
+    const actionDateOnly = new Date(
+      actionDate.getFullYear(),
+      actionDate.getMonth(),
+      actionDate.getDate()
+    );
+
+    if (dateRange.from) {
+      const fromDate = new Date(dateRange.from);
+      const fromDateOnly = new Date(
+        fromDate.getFullYear(),
+        fromDate.getMonth(),
+        fromDate.getDate()
+      );
+      if (actionDateOnly < fromDateOnly) {
+        return false;
+      }
     }
 
+    if (dateRange.to) {
+      const toDate = new Date(dateRange.to);
+      const toDateOnly = new Date(
+        toDate.getFullYear(),
+        toDate.getMonth(),
+        toDate.getDate() + 1
+      ); // +1 to include the entire day
+      if (actionDateOnly >= toDateOnly) {
+        return false;
+      }
+    }
     return true;
   });
 
   // Get unique users and actions for filters
   const uniqueUsers = Array.from(
-    new Set(allAuditEntries.map((entry) => entry.userId))
-  );
-  const uniqueUserNames = Array.from(
-    new Set(allAuditEntries.map((entry) => entry.userName))
-  );
-  const uniqueActions = Array.from(
     new Set(
       allAuditEntries.map((entry) => {
-        const action = entry.action.split(" ")[0]; // Get the verb
-        return action;
+        console.log({ entry });
+        return entry.actor.id.toString();
       })
     )
   );
+  // console.log({ uniqueUsers });
+  const uniqueUserNames = allAuditEntries.reduce((acc, entry) => {
+    if (!acc.some((user) => user.id === entry.actor.id.toString())) {
+      acc.push({ id: entry.actor.id.toString(), name: entry.actor.userName });
+    }
+    return acc;
+  }, [] as { id: string; name: string }[]);
+
+  const uniqueActions = Array.from(
+    new Set(allAuditEntries.map((entry) => entry.Action))
+  );
 
   // Group entries by date
-  const entriesByDate: { [date: string]: AuditEntry[] } = {};
+  const entriesByDate: { [date: string]: AuditTrail[] } = {};
   filteredEntries.forEach((entry) => {
-    const date = format(new Date(entry.timestamp), "yyyy-MM-dd");
+    const date = format(new Date(entry.ActionDate), 'yyyy-MM-dd');
     if (!entriesByDate[date]) {
       entriesByDate[date] = [];
     }
@@ -105,15 +132,44 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
   });
 
   const handleClearFilters = () => {
-    setSearchTerm("");
+    setSearchTerm('');
     setSelectedUser(null);
     setSelectedAction(null);
-    setDateRange({ from: "", to: "" });
+    setDateRange({ from: '', to: '' });
+  };
+
+  // Format changed fields if they exist
+  const formatChanges = (entry: AuditTrail) => {
+    if (!entry.ChangedFields) return null;
+
+    try {
+      const changedFields = JSON.parse(entry.ChangedFields);
+      const oldValues = entry.OldValues ? JSON.parse(entry.OldValues) : {};
+      const newValues = entry.NewValues ? JSON.parse(entry.NewValues) : {};
+
+      return Object.keys(changedFields).map((field) => (
+        <div key={field} className="text-xs">
+          <span className="text-gray-700">{field}: </span>
+          <div className="flex flex-col sm:flex-row sm:items-start gap-1 mt-1">
+            <div className="bg-red-50 p-1 rounded text-red-800 line-through">
+              {oldValues[field]?.toString() || 'null'}
+            </div>
+            <div className="hidden sm:block text-gray-400">→</div>
+            <div className="bg-green-50 p-1 rounded text-green-800">
+              {newValues[field]?.toString() || 'null'}
+            </div>
+          </div>
+        </div>
+      ));
+    } catch (e) {
+      console.error('Error parsing changed fields:', e);
+      return null;
+    }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-6 border-b border-gray-200">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-gray-200">
         <h2 className="text-xl font-medium text-gray-900">Audit Trail</h2>
         <p className="text-sm text-gray-500 mt-1">
           View the complete history of changes to this document
@@ -138,7 +194,7 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
 
           <Button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-1 text-sm font-medium text-gray-700"
+            className="flex items-center gap-1 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-2"
           >
             <Filter className="h-4 w-4" />
             Filters
@@ -148,7 +204,7 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
 
         {showFilters && (
           <div className="space-y-4">
-            <div className="mt-4 grid grid-cols-1  md:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
               <div>
                 <label
                   htmlFor="user-filter"
@@ -159,13 +215,15 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
                 <select
                   id="user-filter"
                   className="block w-full pl-3 pr-2 py-2 text-sm border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
-                  value={selectedUser || ""}
+                  value={selectedUser || ''}
                   onChange={(e) => setSelectedUser(e.target.value || null)}
                 >
-                  <option value="">All Users</option>
-                  {uniqueUsers.map((userId, index) => (
-                    <option key={userId} value={userId}>
-                      {uniqueUserNames[index]}
+                  <option value="" hidden>
+                    All Users
+                  </option>
+                  {uniqueUserNames?.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name}
                     </option>
                   ))}
                 </select>
@@ -176,18 +234,20 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
                   htmlFor="action-filter"
                   className="block text-xs font-medium text-gray-700 mb-1"
                 >
-                  Action Type
+                  Action
                 </label>
                 <select
                   id="action-filter"
                   className="block w-full pl-3 pr-2 py-2 text-sm border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
-                  value={selectedAction || ""}
+                  value={selectedAction || ''}
                   onChange={(e) => setSelectedAction(e.target.value || null)}
                 >
-                  <option value="">All Actions</option>
+                  <option value="" hidden>
+                    All Actions
+                  </option>
                   {uniqueActions.map((action) => (
                     <option key={action} value={action}>
-                      {action.charAt(0).toUpperCase() + action.slice(1)}
+                      {action}
                     </option>
                   ))}
                 </select>
@@ -228,13 +288,11 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
                   }
                 />
               </div>
-              {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              </div> */}
             </div>
-            <div className=" flex justify-end">
+            <div className="flex justify-end">
               <Button
                 onClick={handleClearFilters}
-                className="text-sm text-blue-600 hover:text-blue-800"
+                className="text-sm border border-gray-300 px-2 bg-gray-100 hover:bg-gray-200 text-black"
               >
                 Clear Filters
               </Button>
@@ -252,7 +310,7 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
             .map((date) => (
               <div key={date} className="mb-8 last:mb-0">
                 <h3 className="text-sm font-medium text-gray-500 mb-4">
-                  {format(new Date(date), "MMMM d, yyyy")}
+                  {format(new Date(date), 'MMMM d, yyyy')}
                 </h3>
 
                 <div className="relative">
@@ -261,7 +319,7 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
                   <div className="space-y-6">
                     {entriesByDate[date].map((entry, entryIndex) => (
                       <div
-                        key={entry.id}
+                        key={entry.ID}
                         className="relative pl-10 animate-fade-in"
                       >
                         <div className="absolute left-0 top-0 mt-1.5 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center z-10">
@@ -272,40 +330,42 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
                           <div>
                             <p className="text-sm text-gray-900">
                               <span className="font-medium">
-                                {entry.userName}
-                              </span>{" "}
-                              {entry.action}
+                                {entry.actor.userName}
+                              </span>{' '}
+                              {entry.Action.toLowerCase()}
+                              {entry.Description && (
+                                <span className="text-gray-600">
+                                  {' '}
+                                  - {entry.Description}
+                                </span>
+                              )}
                             </p>
                             <p className="text-xs text-gray-500 mt-1 flex items-center">
                               <Clock className="h-3 w-3 mr-1" />
-                              {format(new Date(entry.timestamp), "h:mm a")}
+                              {/* {format(
+                                new Date(entry.ActionDate).toLocaleDateString(),
+                                'dd-MM-yyyy, h:mm a'
+                              )} */}
+                              {new Date(entry.ActionDate)
+                                .toLocaleString('en-GB', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: true,
+                                })
+                                .replace(',', '')}
                             </p>
                           </div>
 
-                          {entry.changes && entry.changes.length > 0 && (
+                          {entry.ChangedFields && (
                             <div className="mt-3 sm:mt-0 bg-gray-50 p-3 rounded-md max-w-md">
                               <p className="text-xs font-medium text-gray-700 mb-2">
                                 Changes:
                               </p>
                               <div className="space-y-2">
-                                {entry.changes.map((change, changeIndex) => (
-                                  <div key={changeIndex} className="text-xs">
-                                    <span className="text-gray-700">
-                                      {change.field}:{" "}
-                                    </span>
-                                    <div className="flex flex-col sm:flex-row sm:items-start gap-1 mt-1">
-                                      <div className="bg-red-50 p-1 rounded text-red-800 line-through">
-                                        {change.oldValue}
-                                      </div>
-                                      <div className="hidden sm:block text-gray-400">
-                                        →
-                                      </div>
-                                      <div className="bg-green-50 p-1 rounded text-green-800">
-                                        {change.newValue}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
+                                {formatChanges(entry)}
                               </div>
                             </div>
                           )}
@@ -326,8 +386,8 @@ const DocumentAuditTrail: React.FC<DocumentAuditTrailProps> = ({
               selectedAction ||
               dateRange.from ||
               dateRange.to
-                ? "Try adjusting your filters"
-                : "Changes to this document will appear here"}
+                ? 'Try adjusting your filters'
+                : 'Changes to this document will appear here'}
             </p>
           </div>
         )}

@@ -1,19 +1,32 @@
-import React, { forwardRef, SelectHTMLAttributes } from 'react';
+import { forwardRef, SelectHTMLAttributes } from 'react';
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
+  className?: string;
+  placeholder?: string;
   options: Array<{ value: string; label: string; disabled?: boolean }>;
   fullWidth?: boolean;
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, options, fullWidth = true, className = '', ...props }, ref) => {
+  (
+    {
+      label,
+      error,
+      options,
+      fullWidth = true,
+      className = '',
+      placeholder,
+      ...props
+    },
+    ref
+  ) => {
     return (
       <div className={`${fullWidth ? 'w-full' : ''} ${className}`}>
         {label && (
-          <label 
-            htmlFor={props.id} 
+          <label
+            htmlFor={props.id}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
             {label}
@@ -29,9 +42,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           `}
           {...props}
         >
+          <option value="" hidden>
+            {placeholder || 'Select an option'}
+          </option>
           {options.map((option) => (
-            <option 
-              key={option.value} 
+            <option
+              key={option.value}
               value={option.value}
               disabled={option.disabled}
             >

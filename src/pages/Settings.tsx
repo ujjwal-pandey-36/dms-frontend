@@ -1,11 +1,13 @@
-import React from "react";
-import { useUser } from "../contexts/UserContext";
-import { UserCircle, Bell, Lock, Shield } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { UserCircle, Bell, Lock, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useModulePermissions } from '@/hooks/useDepartmentPermissions';
 
 const Settings: React.FC = () => {
-  const { user } = useUser();
-  const navitage = useNavigate();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const allocationPermissions = useModulePermissions(12); // 1 = MODULE_ID
   return (
     <div className="animate-fade-in">
       <h1 className="text-3xl font-bold text-blue-800 mb-6">Settings</h1>
@@ -18,12 +20,20 @@ const Settings: React.FC = () => {
             </div>
             <div>
               <h2 className="text-xl font-medium text-gray-900">
-                {user?.name}
+                {user?.UserName}
               </h2>
-              <p className="text-sm text-gray-500">{user?.email}</p>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-2">
-                {user?.role}
-              </span>
+              <p className="text-sm text-gray-500">{user?.UserAccessID}</p>
+              <div className="flex gap-2 ">
+                {user?.accessList?.map((accessLevel) => (
+                  <span
+                    key={accessLevel.ID}
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-2"
+                  >
+                    {' '}
+                    {accessLevel.Description}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -36,9 +46,11 @@ const Settings: React.FC = () => {
               </h3>
               <div className="space-y-4">
                 <button
-                  // onClick={() => {
-                  //   navitage("/settings/change-password");
-                  // }}
+                  onClick={() => {
+                    (allocationPermissions?.Add ||
+                      allocationPermissions?.Edit) &&
+                      navigate('/settings/change-password');
+                  }}
                   className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
                 >
                   <div className="flex items-center">

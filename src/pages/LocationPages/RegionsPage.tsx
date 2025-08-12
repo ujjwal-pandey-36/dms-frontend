@@ -6,11 +6,12 @@ import {
   CardTitle,
 } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
-import { Button } from "../../components/ui/Button";
+// import { Button } from "../../components/ui/Button";
 import { Plus, Search, Edit, Trash2 } from "lucide-react";
 import { DeleteDialog } from "../../components/ui/DeleteDialog";
 import { Region } from "@/types/User";
 import { PaginationControls } from "@/components/ui/PaginationControls";
+import { Button } from "@chakra-ui/react";
 
 export const RegionsPage: React.FC = () => {
   const [regions, setRegions] = useState<Region[]>([
@@ -94,9 +95,10 @@ export const RegionsPage: React.FC = () => {
               setIsEditing(false);
               setFormData({ name: "", code: "" });
             }}
-            icon={<Plus className="h-4 w-4" />}
+            // icon={<Plus className="h-4 w-4" />}
             className="w-full"
           >
+            <Plus className="h-4 w-4" />
             Add Region
           </Button>
         </div>
@@ -226,9 +228,10 @@ export const RegionsPage: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           className="text-blue-600 hover:text-blue-900 mr-2"
-                          icon={<Edit className="h-4 w-4" />}
+                          // icon={<Edit className="h-4 w-4" />}
                           onClick={() => handleEditClick(region)}
                         >
+                          <Edit className="h-4 w-4" />
                           Edit
                         </Button>
                         <DeleteDialog
@@ -239,8 +242,9 @@ export const RegionsPage: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             className="text-red-600 hover:text-red-900"
-                            icon={<Trash2 className="h-4 w-4" />}
+                            // icon={<Trash2 className="h-4 w-4" />}
                           >
+                            <Trash2 className="h-4 w-4" />
                             Delete
                           </Button>
                         </DeleteDialog>

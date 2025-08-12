@@ -1,26 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDocument } from "../../contexts/DocumentContext";
-import { useUser } from "../../contexts/UserContext";
-import { useNotification } from "../../contexts/NotificationContext";
-import DocumentVersionHistory from "../../components/versioning/DocumentVersionHistory";
+import DocumentVersionHistory from "../../components/documents/DocumentVersionHistory";
 import DocumentCollaboration from "../../components/documents/DocumentCollaboration";
 import DocumentApproval from "../../components/documents/DocumentApproval";
 import DocumentAuditTrail from "../../components/documents/DocumentAuditTrail";
 import {
   ChevronLeft,
-  Share2,
-  Download,
   History,
   MessageSquare,
   CheckCircle,
   ClipboardList,
-  Save,
-  Clock,
+  Loader,
 } from "lucide-react";
-import toast from "react-hot-toast";
-import FieldRestrictions from "../../components/documents/DocumentRestriction";
-import { Button } from "@/components/ui/Button";
+import FieldRestrictions from "@/components/documents/DocumentRestriction";
+
+import DocumentCurrentView from "@/components/documents/DocumentCurrentView";
 
 type TabType =
   | "document"
@@ -29,222 +24,41 @@ type TabType =
   | "approval"
   | "audit"
   | "restrictions";
-const users = [
-  { id: "1", name: "Alice" },
-  { id: "2", name: "Bob" },
-];
 
-const dummyDocument = {
-  fields: {
-    Header: "CERTIFICATE OF LIVE BIRTH",
-    Registry: "123456",
-    Sex: "Male",
-    "Full Name": "John Doe",
-  },
-};
 const DocumentView: React.FC = () => {
   const { documentId } = useParams<{ documentId: string }>();
-  const { documents, updateDocument } = useDocument();
-  const { users } = useUser();
-  const { addNotification } = useNotification();
+  const { currentDocument, loading, fetchDocument } = useDocument();
   const navigate = useNavigate();
-
   const [activeTab, setActiveTab] = useState<TabType>("document");
-  const [isEditing, setIsEditing] = useState(false);
-  const [documentContent, setDocumentContent] = useState("");
-  const [restrictedFields, setRestrictedFields] = useState<{
-    [userId: string]: string[];
-  }>({});
 
-  const document = documents.find((doc) => doc.id === documentId);
+  useEffect(() => {
+    if (documentId) {
+      fetchDocument(documentId);
+    }
+  }, [documentId]);
 
-  if (!document) {
-    return <div className="p-8 text-center">Document not found</div>;
-  }
+  useEffect(() => {
+    if (currentDocument) {
+      // setDocumentContent(currentDocument.content);
+    }
+  }, [currentDocument]);
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    setDocumentContent(document.content);
-  };
+  console.log({ currentDocument });
 
-  const handleSave = () => {
-    const updatedDoc = {
-      ...document,
-      content: documentContent,
-      lastModifiedAt: new Date().toISOString(),
-      lastModifiedBy: users[0].name,
-      lastAction: "updated",
-      versions: [
-        {
-          id: `v${document.versions.length + 1}`,
-          number: document.versions.length + 1,
-          createdAt: new Date().toISOString(),
-          createdBy: users[0].name,
-          content: documentContent,
-        },
-        ...document.versions,
-      ],
-    };
-
-    updateDocument(updatedDoc);
-    setIsEditing(false);
-
-    // Add to audit trail
-    const auditEntry = {
-      id: `audit-${Date.now()}`,
-      documentId: document.id,
-      userId: users[0].id,
-      userName: users[0].name,
-      action: "updated",
-      timestamp: new Date().toISOString(),
-      changes: [
-        {
-          field: "content",
-          oldValue: document.content,
-          newValue: documentContent,
-        },
-      ],
-    };
-
-    // Add notification
-    addNotification({
-      id: `notif-${Date.now()}`,
-      title: "Document Updated",
-      message: `${users[0].name} updated "${document.title}"`,
-      time: "Just now",
-      read: false,
-    });
-
-    toast.success("Document updated successfully");
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setDocumentContent("");
-  };
-  // handler
-  const handleRestrictField = (field: string, userId: string) => {
-    setRestrictedFields((prev) => ({
-      ...prev,
-      [userId]: [...(prev[userId] || []), field],
-    }));
-  };
-
-  const handleRemoveRestriction = (field: string, userId: string) => {
-    setRestrictedFields((prev) => ({
-      ...prev,
-      [userId]: (prev[userId] || []).filter((f) => f !== field),
-    }));
-  };
   const renderTabContent = () => {
     switch (activeTab) {
       case "document":
-        return (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sm:p-6">
-            {isEditing ? (
-              <div className="mb-4">
-                <textarea
-                  className="w-full border border-gray-300 rounded-md p-4 h-96 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={documentContent}
-                  onChange={(e) => setDocumentContent(e.target.value)}
-                />
-                <div className="flex mt-4 gap-2">
-                  <Button
-                    onClick={handleSave}
-                    className="btn btn-primary flex items-center gap-2"
-                  >
-                    <Save size={16} />
-                    Save Changes
-                  </Button>
-                  <Button
-                    onClick={handleCancel}
-                    className="btn btn-outline"
-                    variant="secondary"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="prose max-w-none">
-                <div className="mb-6 flex justify-between items-center gap-2 flex-wrap">
-                  <div>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-2">
-                      v{document.versions.length + 1}
-                    </span>
-                    <h1 className="text-xl sm:text-2xl font-bold mb-1">
-                      {document.title}
-                    </h1>
-                    <div className="text-sm text-gray-500 flex items-center gap-1">
-                      <Clock size={14} />
-                      Last modified:{" "}
-                      {document.lastModifiedAt
-                        ? new Date(document.lastModifiedAt).toLocaleString()
-                        : "—"}{" "}
-                      by {document.lastModifiedBy}
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={handleEdit} className="btn btn-primary">
-                      Edit Document
-                    </Button>
-                  </div>
-                </div>
-                <div className="mb-4 p-6 border border-gray-200 rounded-md bg-gray-50">
-                  <p>{document.content}</p>
-                </div>
-              </div>
-            )}
-
-            <div className="mt-8">
-              <h3 className="text-lg font-medium mb-4">Document Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 bg-gray-50 rounded-md border border-gray-100">
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    Type
-                  </h4>
-                  <p className="text-gray-900">{document.type}</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-md border border-gray-100">
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    Status
-                  </h4>
-                  <p className="text-gray-900">{document.status}</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-md border border-gray-100">
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    Department
-                  </h4>
-                  <p className="text-gray-900">{document.department}</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-md border border-gray-100">
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    Created By
-                  </h4>
-                  <p className="text-gray-900">{document.createdBy}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+        return <DocumentCurrentView document={currentDocument} />;
       case "versions":
-        return <DocumentVersionHistory document={document} />;
+        return <DocumentVersionHistory document={currentDocument} />;
       case "collaboration":
-        return <DocumentCollaboration document={document} />;
+        return <DocumentCollaboration document={currentDocument} />;
       case "approval":
-        return <DocumentApproval document={document} />;
+        return <DocumentApproval document={currentDocument} />;
       case "audit":
-        return <DocumentAuditTrail document={document} />;
+        return <DocumentAuditTrail document={currentDocument} />;
       case "restrictions":
-        return (
-          <FieldRestrictions
-            restrictedFields={restrictedFields}
-            document={dummyDocument}
-            users={users}
-            onRestrictField={handleRestrictField}
-            onRemoveRestriction={handleRemoveRestriction}
-          />
-        );
+        return <FieldRestrictions document={currentDocument} />;
       default:
         return null;
     }
@@ -266,6 +80,19 @@ const DocumentView: React.FC = () => {
       icon: <ClipboardList size={16} />,
     },
   ];
+  if (loading)
+    return (
+      <div className="flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+
+  if (!currentDocument)
+    return (
+      <div className="flex items-center justify-center ">
+        Document not found
+      </div>
+    );
 
   return (
     <div className="animate-fade-in">
@@ -277,27 +104,10 @@ const DocumentView: React.FC = () => {
           >
             <ChevronLeft size={20} />
           </button>
-          <h1 className="text-2xl font-semibold text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
-            {document.title}
+          <h1 className="text-2xl font-semibold text-gray-900 ">
+            {currentDocument?.document[0]?.FileName}
           </h1>
         </div>
-
-        {/* <div className="flex flex-wrap gap-2">
-          <Button
-            className="btn flex items-center gap-2 w-full sm:w-auto"
-            variant="outline"
-          >
-            <Share2 size={16} />
-            <span className="inline">Share</span>
-          </Button>
-          <Button
-            className="btn flex items-center gap-2 w-full sm:w-auto"
-            variant="outline"
-          >
-            <Download size={16} />
-            <span className="inline">Download</span>
-          </Button>
-        </div> */}
       </div>
 
       <div className="mb-6 border-b border-gray-200 overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 pb-2">
