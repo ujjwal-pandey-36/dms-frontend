@@ -11,9 +11,12 @@ import { Portal, Select } from '@chakra-ui/react';
 import useAccessLevelRole from './Users Access/useAccessLevelRole';
 import { deleteUserSoft, registerUser, updateUser } from '@/api/auth';
 import { useModulePermissions } from '@/hooks/useDepartmentPermissions';
+import { useAuth } from '@/contexts/AuthContext';
+import axios from '@/api/axios';
 
 export const UsersPage: React.FC = () => {
   const { users, loading, error, refetch } = useUsers();
+  const { user, updateUserInContext, selectedRole } = useAuth();
   const { accessOptions } = useAccessLevelRole();
   const [localUsers, setLocalUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,7 +78,7 @@ export const UsersPage: React.FC = () => {
 
     try {
       await registerUser(payload);
-      refetch();
+      await refetch();
       toast.success('User created successfully!');
       // ✅ Reset only on success
       setFormData({
@@ -112,19 +115,34 @@ export const UsersPage: React.FC = () => {
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.password && formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
+
+    // Only validate password if user has permission to update it
+    if (canUpdatePassword(currentUser)) {
+      if (formData.password && formData.password !== formData.confirmPassword) {
+        toast.error('Passwords do not match');
+        return;
+      }
+      if (formData.password && formData.password.length < 6) {
+        toast.error('Password must be at least 6 characters long');
+        return;
+      }
     }
-    if (formData.password && formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters long');
-      return;
-    }
+
     if (!formData.username || accessLevelValue.length === 0) {
       toast.error('Please fill out all fields');
       return;
     }
-
+    // const payload = {
+    //   userName: formData.username,
+    //   // Only include password if user has permission to update it
+    //   ...(canUpdatePassword(currentUser) &&
+    //     formData.password && {
+    //       password: formData.password,
+    //       cpassword: formData.confirmPassword,
+    //     }),
+    //   id: currentUser?.ID,
+    //   userAccessArray: JSON.stringify(accessLevelValue),
+    // };
     const payload = {
       userName: formData.username,
       password: formData.password,
@@ -135,7 +153,19 @@ export const UsersPage: React.FC = () => {
 
     try {
       await updateUser(payload);
-      refetch();
+      await refetch();
+      // ✅ if editing the logged-in user, update context
+
+      // ✅ get the freshly updated list of users from API
+      const updatedUser = (await axios.get('/users')).data.users.find(
+        (u: User) => u.ID === currentUser?.ID
+      );
+
+      // ✅ if this was the logged-in user, update AuthContext
+      if (updatedUser && updatedUser.ID === user?.ID) {
+        updateUserInContext(updatedUser);
+      }
+      // sessionStorage.setItem('user', JSON.stringify(currentUser));
       toast.success('User updated successfully!');
     } catch (error) {
       console.error(error);
@@ -162,6 +192,19 @@ export const UsersPage: React.FC = () => {
       toast.error('Failed to delete user');
     }
   };
+
+  // Add this helper function to check if user can update password
+  const canUpdatePassword = (targetUser: User | null): boolean => {
+    // Admin can update any password
+
+    const isAdmin = selectedRole?.Description === 'Administration';
+
+    // User can update their own password
+    const isOwnProfile = targetUser?.ID === user?.ID;
+
+    return isAdmin || isOwnProfile;
+  };
+
   // console.log({ paginatedDepartments });
   return (
     <div className="flex flex-col bg-white rounded-md shadow-lg p-3 sm:p-6">
@@ -230,7 +273,6 @@ export const UsersPage: React.FC = () => {
                   placeholder="Enter username"
                   required
                 />
-
                 {accessOptions && (
                   <Select.Root
                     multiple
@@ -269,7 +311,44 @@ export const UsersPage: React.FC = () => {
                     </Portal>
                   </Select.Root>
                 )}
-                <Input
+                {canUpdatePassword(currentUser) && (
+                  <>
+                    <Input
+                      label={isEditing ? 'New Password (optional)' : 'Password'}
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      required={!isEditing}
+                      placeholder="Password"
+                      min={6}
+                    />
+                    {(formData.password || !isEditing) && (
+                      <Input
+                        label="Confirm Password"
+                        type="password"
+                        value={formData.confirmPassword}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            confirmPassword: e.target.value,
+                          })
+                        }
+                        min={6}
+                        required={!isEditing}
+                      />
+                    )}
+                  </>
+                )}
+                {!canUpdatePassword(currentUser) && isEditing && (
+                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                    <p className="text-sm text-yellow-800">
+                      You don't have permission to update this user's password.
+                    </p>
+                  </div>
+                )}
+                {/* <Input
                   label={isEditing ? 'New Password (optional)' : 'Password'}
                   type="password"
                   value={formData.password}
@@ -294,7 +373,7 @@ export const UsersPage: React.FC = () => {
                     min={6}
                     required={!isEditing}
                   />
-                )}
+                )} */}
                 <div className="flex justify-end space-x-3">
                   <Button
                     type="button"
