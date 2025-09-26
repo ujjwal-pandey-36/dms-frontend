@@ -5,7 +5,9 @@ import { useState, useEffect } from 'react';
 export const useDocumentTypeSelection = () => {
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedDocumentType, setSelectedDocumentType] = useState('');
-  const [documentTypeOptions, setDocumentTypeOptions] = useState([]);
+  const [documentTypeOptions, setDocumentTypeOptions] = useState<
+    { label: string; value: string }[] | []
+  >([]);
 
   const {
     departmentOptions,
